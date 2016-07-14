@@ -388,7 +388,7 @@ void draw()
     fill(255,0,0);
     textSize(40);
     textAlign(CENTER, TOP);
-    text("NO V", myRobot.location.x, myRobot.location.y);
+    text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
   }
     
   
