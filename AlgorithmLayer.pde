@@ -36,16 +36,16 @@ float worldMapScaleY = 800; //1137;
 float worldWidthReal = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeightReal = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float screenSizeX = 800;
-float screenSizeY = screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
-
-float scaleFactor = screenSizeX / worldMapScaleX;
-
 int viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
 int viewPortHeight = 800;
 
 int graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
 int graphicBoxHeight = 800;
+
+float screenSizeX = graphicBoxWidth;
+float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
+
+float scaleFactor = graphicBoxWidth / viewPortWidth;
 
 int vpX = 0;      //The x-coord of the top left corner of the viewPort
 int vpY = 800;      ///The y-coord of the top left corner of the viewPort
@@ -187,7 +187,7 @@ void setup()
   println("img.width : "+img.width+", img.Height: "+img.height);
   println(maxTilesX+","+maxTilesY);
   
-  tile = new Tile[int(maxTilesX)][int(maxTilesY)];
+  tile = new Tile[int(maxTilesX)][int(maxTilesY)]; //<>//
   
   //Sets up a 2D array which will hold the world Tiles
   for (int x = 0; x < maxTilesX; x++) //<>//
@@ -328,7 +328,7 @@ void draw()
     
   
    
-    allNodes.clear();
+    allNodes.clear(); //<>//
     //###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     //###  will not be used in path planning
     doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
@@ -414,7 +414,7 @@ void draw()
     float velocityToGoal = 0.0;
     if (allowV)
     {
-      velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y) /5;
+      velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
     }
     else
     {
