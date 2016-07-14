@@ -39,9 +39,9 @@ void parseSerialData()
         list = split(inData, ",");
         
         //Add robot real world position to inital robot position
-        myRobot.location.x = (float(list[0]) + robotStart.x) * scaleFactor;
-        myRobot.location.y = (float(list[1]) + robotStart.y) * scaleFactor;
-        myRobot.heading = (float(list[2]) +robotStart.z) * scaleFactor;         
+        myRobot.location.x = (float(list[0])/10.0 + robotStart.x); // * scaleFactor;
+        myRobot.location.y = (float(list[1])/10.0 + robotStart.y); // * scaleFactor;
+        myRobot.heading = (float(list[2]) +robotStart.z); // * scaleFactor;         
         break;
       }
       
