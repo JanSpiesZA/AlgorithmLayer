@@ -140,6 +140,8 @@ Tile tile[][];
 int oldMillis, newMillis, time, old_time;
 int delta_t = 500;
 
+boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
+
 void setup()
 {
   kinect = new Kinect(this);
@@ -295,6 +297,9 @@ void draw()
    println();
    showVal = false;
   }
+  
+  
+  
 
   
   //###Gets serial data from robot driver layer = x,y,heading
@@ -316,6 +321,9 @@ void draw()
     //textAlign(LEFT, TOP);
     //fill(0);
     //text("frame rate (ms): "+(newMillis - oldMillis),5,5);
+    
+    
+  
    
     allNodes.clear();
     //###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
@@ -363,6 +371,14 @@ void draw()
     //  resample();
     //}
   
+  //###Show NO TX across robot to indicate no serial data is being transmitted to driver layer
+  if (!allowTX)
+  {
+    fill(255,0,0);
+    textSize(40);
+    textAlign(CENTER, BOTTOM);
+    text("NO TX", myRobot.location.x, myRobot.location.y);
+  }
   
     step = true;
 
@@ -391,7 +407,7 @@ void draw()
     if (interval > delta_t)
     {
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      //updateRobot(velocityToGoal, angleToGoal);
+      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
     }
   }
@@ -800,6 +816,15 @@ void changeGoal()
 
 void keyPressed()
 {
+  //### Add support to disable/enable all serial TX comms
+  if ((key == 'x') || (key == 'X'))
+  {
+    allowTX = !allowTX;
+    myPort.write("<w0\r");
+    delay(1);
+    myPort.write("<v\r");
+  }
+    
   if (key == ' ') showVal = true;
 
   if (key =='s') requestSerialPosition();
