@@ -12,6 +12,7 @@ float maxKinectDetectTooFar = 800.0;
 float maxKinectDeadZone = 40.0;
 float maxKinectPersistantView = 200.0;    //All kinect obstacles up to this distance will be persistant
 float kinectFOW = 60.0;        //Field of View on the horizontal axis
+float kinectTilt = 0.0;        //Tilt angle of kinect sensor
 int skip=10;          //constant used to set the subsample factor fo the kinect data
 // We'll use a lookup table so that we don't have to repeat the math over and over
 float[] depthLookUp = new float[2048];
@@ -141,11 +142,13 @@ int oldMillis, newMillis, time, old_time;
 int delta_t = 500;
 
 boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
+boolean allowV = false;      //Allows the v movement of the robot
 
 void setup()
 {
   kinect = new Kinect(this);
   kinect.initDepth();
+  kinectTilt = kinect.getTilt();
   
   // Lookup table for all possible depth values (0 - 2047)
   for (int i = 0; i < depthLookUp.length; i++) 
@@ -253,7 +256,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[1], 115200);  
+  myPort = new Serial(this, Serial.list()[0], 115200);  
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
   delay(500);
@@ -303,7 +306,7 @@ void draw()
 
   
   //###Gets serial data from robot driver layer = x,y,heading
-  //parseSerialData();
+  parseSerialData();
 
   if (step)
   {
@@ -380,6 +383,15 @@ void draw()
     text("NO TX", myRobot.location.x, myRobot.location.y);
   }
   
+  if (!allowV)
+  {
+    fill(255,0,0);
+    textSize(40);
+    textAlign(CENTER, TOP);
+    text("NO V", myRobot.location.x, myRobot.location.y);
+  }
+    
+  
     step = true;
 
     //###Calculates the vector to avoid all obstacles
@@ -398,8 +410,16 @@ void draw()
     if (angleToGoal < (-PI)) angleToGoal += 2*PI;
     if (angleToGoal > (PI)) angleToGoal -= 2*PI;
        
-    //###Caclualtes the distance between robot and goal to determine speed    
-    float velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y) /5;
+    //###Caclualtes the distance between robot and goal to determine speed
+    float velocityToGoal = 0.0;
+    if (allowV)
+    {
+      velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y) /5;
+    }
+    else
+    {
+      velocityToGoal = 0;
+    }
     
     //###Routine sends new instructions to driverlayer every delta_t millis
     time = millis();  
@@ -819,11 +839,35 @@ void keyPressed()
   //### Add support to disable/enable all serial TX comms
   if ((key == 'x') || (key == 'X'))
   {
-    allowTX = !allowTX;
+    allowTX = !allowTX;    
     myPort.write("<w0\r");
     delay(1);
     myPort.write("<v\r");
   }
+  
+  //###Controls whether the robot can move forward
+  if (key == 'v') 
+  {
+    allowV = !allowV;
+    myPort.write("<v0\r");
+  }
+  
+  //###Enables tilt controll for kinect sensor
+  if (key == CODED)
+  {
+    if (keyCode == UP)
+    {
+      kinectTilt ++;
+      println("Kinect Tilt: "+kinectTilt);
+    } else if (keyCode == DOWN)
+    {
+      kinectTilt --;
+    }
+    kinectTilt = constrain(kinectTilt, -30, 30);
+    kinect.setTilt(kinectTilt);
+  }
+  
+  
     
   if (key == ' ') showVal = true;
 
