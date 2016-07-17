@@ -33,30 +33,31 @@ boolean followPath = true;    //Setting to control if path must be followd or is
 float worldMapScaleX = 800; //3737;      //To be used as the actual distance of the world map x axis, measured in cm
 float worldMapScaleY = 800; //1137;
 
-float worldWidthReal = worldMapScaleX;    //New variable that should replace worldMapScaleX
-float worldHeightReal = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
+float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
+float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-int viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
-int viewPortHeight = 800;
+float imgWidth = 800;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 800;
 
-int graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
-int graphicBoxHeight = 800;
+float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
+float viewPortHeight = 800;
+
+float graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
+float graphicBoxHeight = 800;
 
 float screenSizeX = graphicBoxWidth;
 float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
 
+float vpX = -viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
+float vpY = viewPortHeight/2;      ///The y-coord of the top left corner of the viewPort
+
 float scaleFactor = graphicBoxWidth / viewPortWidth;
-
-int vpX = 0;      //The x-coord of the top left corner of the viewPort
-int vpY = 800;      ///The y-coord of the top left corner of the viewPort
-
-
 
 boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
-PVector robotStart = new PVector (worldMapScaleX/3 , worldMapScaleY/2 , 0.0);    //Position of robot in map on the screen
+PVector robotStart = new PVector (0.0, 0.0, 0.0);    //Position of robot in map on the screen
 
 final int maxParticles = 00;
 Robot[] particles = new Robot[maxParticles];
@@ -90,8 +91,8 @@ float[] sensorObstacleDist = new float[numSensors];
 float[] vectorAO_GTG = {0.0, 0.0};    //x and y values for avoid obstacle and go-to-goal combined vector
 float[] vectorAO = {0.0, 0.0};      //x and y values for avoid obstacle vector
 float[] vectorGTG = {0.0, 0.0};      //x and y values for vector go-to-goal
-float goalX = screenSizeX / 2;            //Goal's X and Y coordinates, set up by clicking with the mouse on the screen
-float goalY = screenSizeY / 2;
+float goalX = 0.0;            //Goal's X and Y coordinates, set up by clicking with the mouse on the screen
+float goalY = 0.0;
 //This section must be removed when only the sensor class is used
 
 PVector vectorAOGTG = new PVector();
@@ -116,7 +117,7 @@ int minDetectDistance = 10;        //Closer than this value and the sensors do n
 float maxDetectDistance = 200.0;
 
 
-PVector goalXY = new PVector(screenSizeX / 2, screenSizeY / 2);       //Holds the goal's x and y coords
+PVector goalXY = new PVector(0.0, 0.0);       //Holds the goal's x and y coords
 float startX = 0;          //Starting point for straight line to goal used by Bug algorithm families
 float startY = 0;
 float x_vector_avoid = 0.0;
@@ -133,7 +134,7 @@ boolean showVal = false;
 boolean step = true;
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
-int tileSize = 25;
+float tileSize = 100;
 int maxTilesX = 0;
 int maxTilesY = 0;
 Tile tile[][];
@@ -143,6 +144,10 @@ int delta_t = 500;
 
 boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
 boolean allowV = false;      //Allows the v movement of the robot
+
+//String mapName = "Floorplan.png";
+//String mapName = "blank.png";
+String mapName = "kamer3.png";
 
 void setup()
 {
@@ -174,46 +179,68 @@ void setup()
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
   
   
-  img = loadImage("blank.png");         //Loads image
-  //img = loadImage("Floorplan.png");
-  //img = loadImage("kamer3.png");         //Loads image
-  img.resize(int(screenSizeX), int(screenSizeY));
+  img = loadImage(mapName);         //Loads image
   
-  tileSize *= scaleFactor;        //Aplies scale factor to the tile size
+  //### Resize image to image width and height represented by the world
+  img.resize(int(imgWidth), int(imgHeight));  
+  
+  worldWidth = img.width+viewPortWidth/2;
+  worldHeight = img.height+viewPortHeight/2;  
+  
+  surface.setResizable(true);
+  surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight)); 
+  
+  //tileSize *= scaleFactor;        //Aplies scale factor to the tile size
     
-  maxTilesX = ceil((float(img.width)/float(tileSize)));
-  maxTilesY = ceil((float(img.height)/float(tileSize)));  
+  //maxTilesX = ceil((float(img.width)/float(tileSize)));
+  //maxTilesY = ceil((float(img.height)/float(tileSize)));  
   
-  println("img.width : "+img.width+", img.Height: "+img.height);
+  println("img.Width : "+img.width+", img.Height: "+img.height);
+  println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
+  println("scaleFactor :"+scaleFactor);
+  
+  maxTilesX = 1 + 2 * ceil((img.width/2 - tileSize/2) / tileSize);
+  maxTilesY = 1 + 2 * ceil((img.height/2 - tileSize/2) / tileSize);
+  
   println(maxTilesX+","+maxTilesY);
   
   tile = new Tile[int(maxTilesX)][int(maxTilesY)]; //<>//
   
+  //### Calculate new resolution for img resize values
+  float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
+  float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
+  img.resize(int(newWidth), int(newHeight));  
+  
+  //Sets up a 2D array which will hold the world Tiles 
+  float _startX = -(tileSize * (maxTilesX - 1) / 2);
+  float _startY = -(tileSize * (maxTilesY - 1) / 2);
+  println("startX: "+_startX +", startY: "+_startY);
   //Sets up a 2D array which will hold the world Tiles
   for (int x = 0; x < maxTilesX; x++) //<>//
   {
     for (int y = 0; y < maxTilesY; y++)
     {
-      tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));
+      tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
+      //tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));
       //tile[x][y] = new Tile(toWorldX(int(x*tileSize + tileSize/2)), toWorldY(int(y*tileSize + tileSize/2)));
     }
   }
   
   //Scans the pixels of the background image to build the occupancy grid
   img.filter(THRESHOLD);              //Convert image to greyscale
-  for (int x = 0; x < screenSizeX; x++)
-  {
-    for (int y = 0; y < screenSizeY; y++)
-    {
-      color c = img.get(x,y);
-      if (c == color(0))
-      { 
-        tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].gravity = 1;
-        tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
-        tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].update();
-      }      
-    }
-  } 
+  //for (int x = 0; x < screenSizeX; x++)
+  //{
+  //  for (int y = 0; y < screenSizeY; y++)
+  //  {
+  //    color c = img.get(x,y);
+  //    if (c == color(0))
+  //    { 
+  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].gravity = 1;
+  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
+  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].update();
+  //    }      
+  //  }
+  //} 
 
   
   
@@ -234,11 +261,11 @@ void setup()
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  applyScale();    //Applies the scale to all physical quantities
+  //applyScale();    //Applies the scale to all physical quantities
 
   //size(100,100,OPENGL);
-  surface.setResizable(true);
-  surface.setSize(int(screenSizeX), int(screenSizeY));
+  //surface.setResizable(true);
+  //surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
   //Change particle x and y values to prevent them from being inside walls
   //for (int i=0; i < maxParticles; i++)
@@ -268,7 +295,9 @@ void setup()
   // in the middle of a string from the sender.
   inData = myPort.readStringUntil(lf);
   inData = null;
-  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
+  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+  
+ 
 }
 
 
@@ -306,17 +335,20 @@ void draw()
 
   
   //###Gets serial data from robot driver layer = x,y,heading
-  parseSerialData();
+  //parseSerialData();
 
   if (step)
   {
-    background (img);        //draws map as background
-    drawTiles();   
-    drawTarget();
-    myRobot.display();
+    imageMode(CENTER);
+    background (200);        //draws map as background    
+    image(img,toScreenX(0),toScreenY(0));    
     
-    isInFOW();    
-    drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    drawTiles();   
+    //drawTarget();
+    //myRobot.display();
+    
+    //isInFOW();    
+    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -328,21 +360,21 @@ void draw()
     
   
    
-    allNodes.clear(); //<>//
-    //###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
-    //###  will not be used in path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
-    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
-    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
+    //allNodes.clear(); //<>//
+    ////###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
+    ////###  will not be used in path planning
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
+    //allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
+    //allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
     
     //oldMillis = millis();
-    nodeLink();
+    //nodeLink();
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
   
-    findPath();
+    //findPath();
    
-    PlotRobot();
+    //PlotRobot();
     //calcProgressPoint();
     
     //Draws an ellipse at the centerpoint of the kinect's position on the robot
@@ -351,10 +383,10 @@ void draw()
     //ellipse(returnVal.x, returnVal.y, 10,10);  
     
     //###Displays the node positions on the map
-    for (Node n: allNodes)
-    {
-       n.display();     
-    }
+    //for (Node n: allNodes)
+    //{
+    //   n.display();     
+    //}
     
     //int startTime = millis();
     //myRobot.sense();          //Makes use of sensor class to detect obstacles
@@ -373,6 +405,16 @@ void draw()
     //  updateParticles();
     //  resample();
     //}
+    
+  //### Draws cartesian axis on the screen  
+  strokeWeight(2);
+  stroke(0,255,0);
+  line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
+  line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
+  
+  //### Displays mouse X and Y values in World Coords
+  fill(0);
+  text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   
   //###Show NO TX across robot to indicate no serial data is being transmitted to driver layer
   if (!allowTX)
@@ -426,8 +468,8 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
+      //println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      //if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
     }
   }
@@ -785,6 +827,8 @@ PVector transRot (float x_frame, float y_frame, float phi_frame, float x_point, 
 }
 //==========================================================================
 //
+//### LEFT mouse button event changes the position of the goal
+//### RIGHT mouse button event changes the position of the robot
 void mousePressed()
 {
   if (mousePressed && (mouseButton == LEFT)) changeGoal();
@@ -802,6 +846,34 @@ void mousePressed()
     myRobot.progressPoint.y = toWorldY(int(mouseY));
     myRobot.makingProgress = true;
   }
+}
+
+//### Zoom world in and out using mousewheel event
+void mouseWheel(MouseEvent event)
+{
+  float e = event.getCount();
+  float zoomScale = viewPortWidth * 0.2;
+   
+  viewPortWidth += zoomScale * e;
+  viewPortHeight += zoomScale * e;
+  
+  vpX -= zoomScale / 2 * e;
+  vpY += zoomScale / 2 * e;
+  
+  scaleFactor = graphicBoxWidth / viewPortWidth;
+  
+  //### Reloads original image in order to maintain image sharpness after zoom
+  //img = loadImage(mapName);         //Loads image 
+  //### Resize image to image width and height represented by the world
+  img.resize(int(imgWidth), int(imgHeight));
+  
+  //### Calculate new resolution for img resize values
+  float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
+  float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
+  img.resize(int(newWidth), int(newHeight));
+  
+  println("vpX: "+vpX+", vpY: "+vpY+", viewPortWidth: "+viewPortWidth+", viewPortHeight: "+viewPortHeight);
+  println(scaleFactor);
 }
 
 //Change the goal location everytime the mouse is clicked
@@ -854,7 +926,7 @@ void keyPressed()
   
   //###Enables tilt controll for kinect sensor
   if (key == CODED)
-  {
+  {    
     if (keyCode == UP)
     {
       kinectTilt ++;
@@ -867,17 +939,41 @@ void keyPressed()
     kinect.setTilt(kinectTilt);
   }
   
-  
+  if (key == 'w')
+  {
+    vpY += 10;
+    if (vpY >= worldHeight/2) vpY = worldHeight/2;
+    println(vpY);
+  }
     
-  if (key == ' ') showVal = true;
-
-  if (key =='s') requestSerialPosition();
+  if (key == 's')
+  {
+    vpY -= 10;
+    if (vpY <= -worldHeight/2+viewPortHeight) vpY = -worldHeight/2+viewPortHeight;
+    println(vpY);
+  }
+  
+  if (key == 'a')
+  {
+    vpX -= 10;
+    if (vpX <= -worldWidth/2) vpX = -worldWidth/2;
+    println(vpX);
+  }
+    
+  if (key == 'd')
+  {
+    vpX += 10;
+    if (vpX >= worldWidth/2-viewPortWidth) vpX = worldWidth/2-viewPortWidth;
+    println(vpX);
+  }
+    
+  if (key == ' ') showVal = true;  
 
   //Use this key to enable or disable obstacle
   if (key == 'o')
   {
-    int worldMouseX = toWorldX(mouseX)/tileSize;
-    int worldMouseY = toWorldY(mouseY)/tileSize;
+    int worldMouseX = int(toWorldX(mouseX)/tileSize);
+    int worldMouseY = int(toWorldY(mouseY)/tileSize);
     switch(tile[worldMouseX][worldMouseY].tileType)
     {
       case "UNASSIGNED":
@@ -905,23 +1001,23 @@ void keyPressed()
 
 //Creates a viewport which is used to view only a specific area of the world map
 //It also plots world coordinates onto the screen i.e: Inverting the y-axis
-int toScreenX(int _x)
+int toScreenX(float _x)
 {
-  return ((graphicBoxWidth / viewPortWidth) * (_x - vpX));
+  return int((graphicBoxWidth / viewPortWidth) * (_x - vpX));
 }
 
-int toScreenY(int _y)
+int toScreenY(float _y)
 {
-  return ((graphicBoxHeight / viewPortHeight) * (vpY - _y));
+  return int((graphicBoxHeight / viewPortHeight) * (vpY - _y));
 }
 
 
-int toWorldX (int _x)
+float toWorldX (int _x)
 {
-  return int((float(_x) / float(graphicBoxWidth) * float(viewPortWidth) + vpX));  
+  return ((float(_x) / graphicBoxWidth * viewPortWidth + vpX));  
 }
 
-int toWorldY (int _y)
+float toWorldY (int _y)
 {
-  return int((vpY - float(_y) / float(graphicBoxHeight) * float(viewPortHeight))-1);
+  return (vpY - float(_y) / graphicBoxHeight * viewPortHeight - 1);
 }
