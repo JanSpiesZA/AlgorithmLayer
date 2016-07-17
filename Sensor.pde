@@ -7,9 +7,9 @@ class Sensor
   float sensorHAngle = 0.0;    //Angle of sensor in horizontal plane relative to robot chassis. IE rotated left or right
   float sensorVAngle = 0.0;    //Angle of sensor in vertical plane relative to robot chassis. IE tilted up or down
   float sensorGain = 1.0;      //Gains used to indicate importance of sensor
-  int sensorObstacleDist = 0;  //Distance from THIS sensor to obstacle
-  int sensorMaxDetect = 200;
-  int sensorMinDetect = 0;
+  float sensorObstacleDist = 0;  //Distance from THIS sensor to obstacle
+  float sensorMaxDetect = 200;
+  float sensorMinDetect = 0;
   float sensorNoise = 5.0;
   
   Sensor(int _sensorXPos, int _sensorYPos, float _sensorHAngle)

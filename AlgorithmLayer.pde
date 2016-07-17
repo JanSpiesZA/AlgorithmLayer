@@ -65,8 +65,8 @@ final float noiseForward = 1.0;            //global Noisevalues used to set the 
 final float noiseTurn = 0.1;
 final float noiseSense = 5.0;
 
-float moveSpeed = 0;                    //Globals used to define speeds and turn angle
-float moveAngle = 0;
+float moveSpeed = 0.0;                    //Globals used to define speeds and turn angle
+float moveAngle = 0.0;
 
 float turnGain = 0.1;
 float moveGain = 0.01;
@@ -76,7 +76,7 @@ float normaliseGain = 100.0;
 float safeZone = 20.0;          //Safe area around target assumed the robot reached its goal;
 
 //safeDistance cannot be less than minDetectDistance
-int safeDistance = 50;      //If sensor measured distance is less than this value, the robot is too close to an obstacle
+float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle
 float distanceFromWall = 50.0;    //Distance that must be maintained when following the wall
 
 
@@ -113,7 +113,7 @@ float[] vectorFollowWall = {0.0, 0.0};    //Vector pointing in the direction the
 
 int numSensors2 = 7;          //Number of sensors used by the new code
 
-int minDetectDistance = 10;        //Closer than this value and the sensors do not return valid data
+float minDetectDistance = 10.0;        //Closer than this value and the sensors do not return valid data
 float maxDetectDistance = 200.0;
 
 
@@ -344,8 +344,8 @@ void draw()
     image(img,toScreenX(0),toScreenY(0));    
     
     drawTiles();   
-    //drawTarget();
-    //myRobot.display();
+    drawTarget();
+    myRobot.display();
     
     //isInFOW();    
     //drawPixels();      //Draws the data from the Kinect sensors on the screen    
@@ -565,7 +565,7 @@ void applyScale()
   myRobot.robotDiameter *= scaleFactor;
   myRobot.noseLength *= scaleFactor;
   myRobot.maxSpeed *= scaleFactor;
-  myRobot.maxTurnRate *= scaleFactor;
+  //myRobot.maxTurnRate *= scaleFactor;
   minDetectDistance *= scaleFactor;        //Closer than this value and the sensors do not return valid data
   maxDetectDistance *= scaleFactor;
   safeZone *= scaleFactor;          //Safe area around target assumed the robot reached its goal;
@@ -782,13 +782,13 @@ void drawTarget()
   stroke(0);
   fill(255, 0, 0);
   strokeWeight(1);
-  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone*3, safeZone*3);
+  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone*3 * scaleFactor, safeZone*3 * scaleFactor);
   stroke(0);
   fill(255);
-  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone*2, safeZone*2);
+  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone*2 * scaleFactor, safeZone*2 * scaleFactor);
   stroke(0);
   fill(0);
-  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone, safeZone);
+  ellipse (toScreenX(int(goalXY.x)), toScreenY(int(goalXY.y)), safeZone * scaleFactor, safeZone * scaleFactor);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -871,6 +871,8 @@ void mouseWheel(MouseEvent event)
   float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
   float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
   img.resize(int(newWidth), int(newHeight));
+  
+  
   
   println("vpX: "+vpX+", vpY: "+vpY+", viewPortWidth: "+viewPortWidth+", viewPortHeight: "+viewPortHeight);
   println(scaleFactor);
