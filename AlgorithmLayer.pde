@@ -146,8 +146,8 @@ boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
 boolean allowV = false;      //Allows the v movement of the robot
 
 //String mapName = "Floorplan.png";
-//String mapName = "blank.png";
-String mapName = "kamer3.png";
+String mapName = "blank.png";
+//String mapName = "kamer3.png";
 
 void setup()
 {
@@ -298,7 +298,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 115200);  
+  myPort = new Serial(this, Serial.list()[1], 115200);  
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
   delay(500);
@@ -352,7 +352,7 @@ void draw()
 
   
   //###Gets serial data from robot driver layer = x,y,heading
-  //parseSerialData();
+  parseSerialData();
 
   if (step)
   {
@@ -365,8 +365,8 @@ void draw()
     myRobot.display();
    ellipse(toScreenX(0), toScreenY(0), 20, 20);
     
-    isInFOW();    
-    drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    //isInFOW();    
+    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -492,8 +492,8 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      //println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      //if (allowTX) updateRobot(velocityToGoal, angleToGoal);
+      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
     }
   }
