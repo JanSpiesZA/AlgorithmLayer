@@ -48,8 +48,8 @@ float graphicBoxHeight = 800;
 float screenSizeX = graphicBoxWidth;
 float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
 
-float vpX = -viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
-float vpY = viewPortHeight/2;      ///The y-coord of the top left corner of the viewPort
+float vpX = 0; //-viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
+float vpY = viewPortHeight; ///2;      ///The y-coord of the top left corner of the viewPort
 
 float scaleFactor = graphicBoxWidth / viewPortWidth;
 
@@ -213,31 +213,30 @@ void setup()
   
   
   //Sets up a 2D array which will hold the world Tiles 
-  float _startX = -(tileSize * (maxTilesX - 1) / 2);
-  float _startY = -(tileSize * (maxTilesY - 1) / 2);
-  println("startX: "+_startX +", startY: "+_startY);
+  //float _startX = 0.0; //-(tileSize * (maxTilesX - 1) / 2);
+  //float _startY = 0.0; //-(tileSize * (maxTilesY - 1) / 2);
+  //println("startX: "+_startX +", startY: "+_startY);
   //Sets up a 2D array which will hold the world Tiles
   for (int x = 0; x < maxTilesX; x++) //<>//
   {
     for (int y = 0; y < maxTilesY; y++)
     {
-      tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
-      //tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));
-      //tile[x][y] = new Tile(toWorldX(int(x*tileSize + tileSize/2)), toWorldY(int(y*tileSize + tileSize/2)));
+      //tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
+      tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));      
     }
   }
   
   //Scans the pixels of the background image to build the occupancy grid
   img.filter(THRESHOLD);              //Convert image to greyscale
-  for (int x = 0; x < graphicBoxWidth; x++)
+  for (int x = 0; x < imgWidth; x++)
   {
-    for (int y = 0; y < graphicBoxHeight; y++)
+    for (int y = 0; y < imgHeight; y++)
     {
       color c = img.get(x,y);
       if (c == color(0))
       {         
-        int tileX = floor(toWorldX(x) / tileSize + (maxTilesX) / 2.0);
-        int tileY = floor(toWorldY(y) / tileSize + (maxTilesY) / 2.0);        
+        int tileX = floor(toWorldX(x) / tileSize); // + (maxTilesX) / 2.0);
+        int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);        
         if ((tileX >= 0) && (tileX < maxTilesX) && (tileY >= 0) && (tileY < maxTilesY))
         {          
           tile[tileX][tileY].gravity = 1;
@@ -354,9 +353,9 @@ void draw()
 
   if (step)
   {
-    imageMode(CENTER);
+    //imageMode(CENTER);
     background (200);        //draws map as background    
-    image(img,toScreenX(0),toScreenY(0));    
+    image(img,toScreenX(0),toScreenY(imgHeight));    
     
     drawTiles();   
     drawTarget();
