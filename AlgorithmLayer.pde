@@ -134,7 +134,7 @@ boolean showVal = false;
 boolean step = true;
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
-float tileSize = 100;
+float tileSize = 50;
 int maxTilesX = 0;
 int maxTilesY = 0;
 Tile tile[][];
@@ -199,6 +199,9 @@ void setup()
   println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
   println("scaleFactor :"+scaleFactor);
   
+  color d = img.get(int(toWorldX(100)), int(toWorldY(100)));
+  println(d);
+  
   maxTilesX = 1 + 2 * ceil((img.width/2 - tileSize/2) / tileSize);
   maxTilesY = 1 + 2 * ceil((img.height/2 - tileSize/2) / tileSize);
   
@@ -207,9 +210,10 @@ void setup()
   tile = new Tile[int(maxTilesX)][int(maxTilesY)]; //<>//
   
   //### Calculate new resolution for img resize values
-  float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
-  float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
-  img.resize(int(newWidth), int(newHeight));  
+  //float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
+  //float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
+  //img.resize(int(newWidth), int(newHeight));  
+  
   
   //Sets up a 2D array which will hold the world Tiles 
   float _startX = -(tileSize * (maxTilesX - 1) / 2);
@@ -228,19 +232,31 @@ void setup()
   
   //Scans the pixels of the background image to build the occupancy grid
   img.filter(THRESHOLD);              //Convert image to greyscale
-  //for (int x = 0; x < screenSizeX; x++)
-  //{
-  //  for (int y = 0; y < screenSizeY; y++)
-  //  {
-  //    color c = img.get(x,y);
-  //    if (c == color(0))
-  //    { 
-  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].gravity = 1;
-  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
-  //      tile[toWorldX(x)/tileSize][toWorldY(y)/tileSize].update();
-  //    }      
-  //  }
-  //} 
+  for (int x = 0; x < graphicBoxWidth; x++)
+  {
+    for (int y = 0; y < graphicBoxHeight; y++)
+    {
+      color c = img.get(x,y);
+      if (c == color(0))
+      {         
+        int tileX = floor(toWorldX(x) / tileSize + (maxTilesX) / 2.0);
+        int tileY = floor(toWorldY(y) / tileSize + (maxTilesY) / 2.0);        
+        if ((tileX >= 0) && (tileX < maxTilesX) && (tileY >= 0) && (tileY < maxTilesY))
+        {          
+          tile[tileX][tileY].gravity = 1;
+          tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
+          tile[tileX][tileY].update();
+        }
+      }      
+    }
+  }
+  
+  
+  
+  
+  
+  
+  
 
   
   
@@ -295,7 +311,8 @@ void setup()
   // in the middle of a string from the sender.
   inData = myPort.readStringUntil(lf);
   inData = null;
-  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
+  
   
  
 }
@@ -332,6 +349,7 @@ void draw()
   
   
   
+  
 
   
   //###Gets serial data from robot driver layer = x,y,heading
@@ -344,8 +362,8 @@ void draw()
     image(img,toScreenX(0),toScreenY(0));    
     
     drawTiles();   
-    drawTarget();
-    myRobot.display();
+    //drawTarget();
+    //myRobot.display();
     
     //isInFOW();    
     //drawPixels();      //Draws the data from the Kinect sensors on the screen    
@@ -414,7 +432,12 @@ void draw()
   
   //### Displays mouse X and Y values in World Coords
   fill(0);
+  //int tileX = floor(toWorldX(mouseX) / tileSize + (maxTilesX) / 2.0);
+  //int tileY = floor(toWorldY(mouseY) / tileSize + (maxTilesY) / 2.0);
+  //textAlign(CENTER,BOTTOM);
+  //text(tileX+":"+tileY, mouseX, mouseY);
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
+  //text((mouseX)+":"+(mouseY), mouseX, mouseY);
   
   //###Show NO TX across robot to indicate no serial data is being transmitted to driver layer
   if (!allowTX)
@@ -494,6 +517,8 @@ void drawTiles()
       {
         tile[x][y].drawTileForce();
       }
+      textAlign(CENTER, TOP);
+      text(x+":"+y, toScreenX(int(tile[x][y].tilePos.x)), toScreenY(int(tile[x][y].tilePos.y)));
       tile[x][y].update();
     }
   }
