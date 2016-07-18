@@ -374,12 +374,12 @@ void draw()
     
   
    
-    //allNodes.clear(); //<>//
+    allNodes.clear(); //<>//
     ////###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////###  will not be used in path planning
-    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
-    //allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
-    //allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
+    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
+    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
+    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
     
     //oldMillis = millis();
     //nodeLink();
