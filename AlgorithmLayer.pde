@@ -192,18 +192,15 @@ void setup()
   
   //tileSize *= scaleFactor;        //Aplies scale factor to the tile size
     
-  //maxTilesX = ceil((float(img.width)/float(tileSize)));
-  //maxTilesY = ceil((float(img.height)/float(tileSize)));  
+  maxTilesX = ceil((float(img.width)/(tileSize)));
+  maxTilesY = ceil((float(img.height)/(tileSize)));  
   
   println("img.Width : "+img.width+", img.Height: "+img.height);
   println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
   println("scaleFactor :"+scaleFactor);
   
-  color d = img.get(int(toWorldX(100)), int(toWorldY(100)));
-  println(d);
-  
-  maxTilesX = 1 + 2 * ceil((img.width/2 - tileSize/2) / tileSize);
-  maxTilesY = 1 + 2 * ceil((img.height/2 - tileSize/2) / tileSize);
+  //maxTilesX = 1 + 2 * ceil((img.width/2 - tileSize/2) / tileSize);
+  //maxTilesY = 1 + 2 * ceil((img.height/2 - tileSize/2) / tileSize);
   
   println(maxTilesX+","+maxTilesY);
   
@@ -362,8 +359,8 @@ void draw()
     image(img,toScreenX(0),toScreenY(0));    
     
     drawTiles();   
-    //drawTarget();
-    //myRobot.display();
+    drawTarget();
+    myRobot.display();
     
     //isInFOW();    
     //drawPixels();      //Draws the data from the Kinect sensors on the screen    
