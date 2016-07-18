@@ -16,13 +16,13 @@ void doQuadTree(int _btmLeftX, int _btmLeftY, int _sizeW, int _sizeH, int _level
    allNodes.add(new Node(nodeX,nodeY,allNodes.size()));    //Add new node to allNodes arrayList
    
    //### Draws the nodes and node numbers on the screen
-   stroke(0);
-   fill(0,255,0);
-   ellipse(toScreenX(int(nodeX)),toScreenY(int(nodeY)), 5,5);   //Draws an ellipse to indicate node x,y
-   fill(0);
-   textSize(10);
-   fill(0);
-   text(allNodes.size()-1,toScreenX(int(nodeX-8)),toScreenY(int(nodeY-8)));
+   //stroke(0);
+   //fill(0,255,0);
+   //ellipse(toScreenX(int(nodeX)),toScreenY(int(nodeY)), 5,5);   //Draws an ellipse to indicate node x,y
+   //fill(0);
+   //textSize(10);
+   //fill(0);
+   //text(allNodes.size()-1,toScreenX(int(nodeX-8)),toScreenY(int(nodeY-8)));
    return;
   }
   //If a mixed quad is found and it is the last level DO NOT draw a node, just return

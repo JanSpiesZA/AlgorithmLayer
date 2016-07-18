@@ -388,7 +388,7 @@ void draw()
   
     findPath();
    
-    //PlotRobot();
+    PlotRobot();
     //calcProgressPoint();
     
     //Draws an ellipse at the centerpoint of the kinect's position on the robot
@@ -397,10 +397,10 @@ void draw()
     //ellipse(returnVal.x, returnVal.y, 10,10);  
     
     //###Displays the node positions on the map
-    //for (Node n: allNodes)
-    //{
-    //   n.display();     
-    //}
+    for (Node n: allNodes)
+    {
+       n.display();     
+    }
     
     //int startTime = millis();
     //myRobot.sense();          //Makes use of sensor class to detect obstacles
