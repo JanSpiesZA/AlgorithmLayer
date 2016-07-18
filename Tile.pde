@@ -24,7 +24,7 @@ class Tile
     tilePos = new PVector();
   }
   
-  Tile(int _tileX, int _tileY)
+  Tile(float _tileX, float _tileY)
   {
     gravityCol = color(150,200,150);
     tileType = "UNASSIGNED";
@@ -81,7 +81,7 @@ class Tile
     strokeWeight(1);  //Stroke weight makes the lines very light
     rectMode(CENTER);
     fill(gravityCol,200);
-    rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize, tileSize);
+    rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize * scaleFactor, tileSize * scaleFactor);
     
     //####Text to display the real world coords of the tile on the screen
     //textAlign(CENTER,BOTTOM);

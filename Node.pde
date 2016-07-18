@@ -112,7 +112,7 @@ class Node
           strokeWeight(1);
           stroke(0);
           fill(150);
-          ellipse(toWorldX(int(nodeXPos)),toWorldY(int(nodeYPos)), 10,10);   //Draws an ellipse to indicate node x,y        
+          ellipse(toScreenX(int(nodeXPos)),toScreenY(int(nodeYPos)), 5 * scaleFactor,5 * scaleFactor);   //Draws an ellipse to indicate node x,y        
     }
     
     
