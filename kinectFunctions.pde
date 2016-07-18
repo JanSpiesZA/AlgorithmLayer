@@ -37,15 +37,10 @@ void drawPixels()
      int rawDepth = depth[offset];
      PVector v = depthToWorld(x, y, rawDepth);
      
-    v.x *= 100;      //Convert depth value from meters into mm
-    v.z *= 100;
-    
-    v.x *= scaleFactor;  //Multiply values with scale factor 
-    v.z *= scaleFactor;
-         
+     v.x *= 100;      //Convert depth value from meters into mm
+     v.z *= 100;
      
-     
-     if (v.z > 0 && v.z < maxKinectDetectNormal*scaleFactor)    //Test for any invalid depth values      
+     if (v.z > 0 && v.z < maxKinectDetectNormal)    //Test for any invalid depth values      
      {
         fill(255);
         PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading - PI/2, v.x, v.z);
