@@ -134,7 +134,7 @@ boolean showVal = false;
 boolean step = true;
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
-float tileSize = 50;
+float tileSize = 25;
 int maxTilesX = 0;
 int maxTilesY = 0;
 Tile tile[][];
@@ -206,10 +206,7 @@ void setup()
   
   tile = new Tile[int(maxTilesX)][int(maxTilesY)]; //<>//
   
-  //### Calculate new resolution for img resize values
-  //float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
-  //float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
-  //img.resize(int(newWidth), int(newHeight));  
+  
   
   
   //Sets up a 2D array which will hold the world Tiles 
@@ -222,7 +219,8 @@ void setup()
     for (int y = 0; y < maxTilesY; y++)
     {
       //tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
-      tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));      
+      tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));  
+      //println(tile[x][y].tilePos.x+":"+tile[x][y].tilePos.y);
     }
   }
   
@@ -232,12 +230,14 @@ void setup()
   {
     for (int y = 0; y < imgHeight; y++)
     {
-      color c = img.get(x,y);
+      color c = img.get(x,y);      
       if (c == color(0))
       {         
         int tileX = floor(toWorldX(x) / tileSize); // + (maxTilesX) / 2.0);
-        int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);        
-        if ((tileX >= 0) && (tileX < maxTilesX) && (tileY >= 0) && (tileY < maxTilesY))
+        int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);  
+        //println(tileX+":"+tileY);
+        //print("tileSize: "+tileSize+", x: "+x+"("+toWorldX(x)+"), y: "+y+"("+toWorldY(y)+"), tileX:Y = "+tileX+":"+tileY);
+        if ((tileX >= 0) && (tileY >= 0))
         {          
           tile[tileX][tileY].gravity = 1;
           tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
@@ -250,7 +250,10 @@ void setup()
   
   
   
-  
+  //### Calculate new resolution for img resize values
+  //float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
+  //float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
+  //img.resize(int(newWidth), int(newHeight));  
   
   
 
@@ -360,9 +363,10 @@ void draw()
     drawTiles();   
     drawTarget();
     myRobot.display();
+   ellipse(toScreenX(0), toScreenY(0), 20, 20);
     
-    //isInFOW();    
-    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    isInFOW();    
+    drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -515,6 +519,7 @@ void drawTiles()
         tile[x][y].drawTileForce();
       }
       //textAlign(CENTER, TOP);
+      //textSize(10);
       //text(x+":"+y, toScreenX(int(tile[x][y].tilePos.x)), toScreenY(int(tile[x][y].tilePos.y)));
       tile[x][y].update();
     }
@@ -966,28 +971,28 @@ void keyPressed()
   if (key == 'w')
   {
     vpY += 10;
-    if (vpY >= worldHeight/2) vpY = worldHeight/2;
+    if (vpY >= imgHeight + 100) vpY = imgHeight + 100;
     println(vpY);
   }
     
   if (key == 's')
   {
     vpY -= 10;
-    if (vpY <= -worldHeight/2+viewPortHeight) vpY = -worldHeight/2+viewPortHeight;
+    if (vpY <= viewPortHeight - 100) vpY = viewPortHeight - 100;
     println(vpY);
   }
   
   if (key == 'a')
   {
     vpX -= 10;
-    if (vpX <= -worldWidth/2) vpX = -worldWidth/2;
+    if (vpX <= -100) vpX = -100;
     println(vpX);
   }
     
   if (key == 'd')
   {
     vpX += 10;
-    if (vpX >= worldWidth/2-viewPortWidth) vpX = worldWidth/2-viewPortWidth;
+    if (vpX >= (imgWidth + 100 - viewPortWidth)) vpX = (imgWidth + 100 - viewPortWidth);
     println(vpX);
   }
     
@@ -1043,5 +1048,5 @@ float toWorldX (int _x)
 
 float toWorldY (int _y)
 {
-  return (vpY - float(_y) / graphicBoxHeight * viewPortHeight - 1);
+  return (vpY - float(_y) / graphicBoxHeight * viewPortHeight) - 1; //removed -1
 }
