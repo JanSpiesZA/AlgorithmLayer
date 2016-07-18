@@ -57,7 +57,7 @@ boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
-PVector robotStart = new PVector (0.0, 0.0, 0.0);    //Position of robot in map on the screen
+PVector robotStart = new PVector (imgWidth/2, imgWidth/2, 0.0);    //Position of robot in map on the screen
 
 final int maxParticles = 00;
 Robot[] particles = new Robot[maxParticles];
@@ -117,7 +117,7 @@ float minDetectDistance = 10.0;        //Closer than this value and the sensors 
 float maxDetectDistance = 200.0;
 
 
-PVector goalXY = new PVector(0.0, 0.0);       //Holds the goal's x and y coords
+PVector goalXY = new PVector(imgWidth * 0.6, imgHeight/2);       //Holds the goal's x and y coords
 float startX = 0;          //Starting point for straight line to goal used by Bug algorithm families
 float startY = 0;
 float x_vector_avoid = 0.0;
