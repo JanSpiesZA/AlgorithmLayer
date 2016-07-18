@@ -84,10 +84,10 @@ class Tile
     rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize * scaleFactor, tileSize * scaleFactor);
     
     //####Text to display the real world coords of the tile on the screen
-    textAlign(CENTER,BOTTOM);
-    textSize(10);
-    fill(0);      
-    text(int(tilePos.x)+":"+int(tilePos.y), toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)));
+    //textAlign(CENTER,BOTTOM);
+    //textSize(10);
+    //fill(0);      
+    //text(int(tilePos.x)+":"+int(tilePos.y), toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)));
   }
 
 

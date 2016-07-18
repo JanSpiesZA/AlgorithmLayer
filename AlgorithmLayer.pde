@@ -434,7 +434,8 @@ void draw()
   fill(0);
   //int tileX = floor(toWorldX(mouseX) / tileSize + (maxTilesX) / 2.0);
   //int tileY = floor(toWorldY(mouseY) / tileSize + (maxTilesY) / 2.0);
-  //textAlign(CENTER,BOTTOM);
+  textSize(10);
+  textAlign(CENTER,BOTTOM);
   //text(tileX+":"+tileY, mouseX, mouseY);
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   //text((mouseX)+":"+(mouseY), mouseX, mouseY);
@@ -517,8 +518,8 @@ void drawTiles()
       {
         tile[x][y].drawTileForce();
       }
-      textAlign(CENTER, TOP);
-      text(x+":"+y, toScreenX(int(tile[x][y].tilePos.x)), toScreenY(int(tile[x][y].tilePos.y)));
+      //textAlign(CENTER, TOP);
+      //text(x+":"+y, toScreenX(int(tile[x][y].tilePos.x)), toScreenY(int(tile[x][y].tilePos.y)));
       tile[x][y].update();
     }
   }
