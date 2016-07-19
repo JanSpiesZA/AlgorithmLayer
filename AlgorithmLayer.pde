@@ -365,8 +365,8 @@ void draw()
     myRobot.display();
    ellipse(toScreenX(0), toScreenY(0), 20, 20);
     
-    //isInFOW();    
-    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    isInFOW();    
+    drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();

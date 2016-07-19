@@ -58,11 +58,11 @@ void drawPixels()
 //Adds 'n gravity value to the occupancy grid based on the amount of pixels inside each cell
 void updateGravity(float _x, float _y)
 {  
-  int x = int(_x/(tileSize*scaleFactor));
+  int x = int(_x/(tileSize));
   if (x < 0) x = 0;
   if (x >= maxTilesX) x = maxTilesX-1;
   
-  int y = int(_y/(tileSize*scaleFactor));
+  int y = int(_y/(tileSize));
   if (y < 0) y = 0;
   if (y >= maxTilesY) y = maxTilesY-1;
   
