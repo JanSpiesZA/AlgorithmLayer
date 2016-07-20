@@ -57,7 +57,8 @@ boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
-PVector robotStart = new PVector (imgWidth/2, imgWidth/2, 0.0);    //Position of robot in map on the screen
+//###Offset position of robot in the world map since real robot starts at world coords 0,0 but onscreen it is not 0,0
+PVector robotPosOffset = new PVector (imgWidth/2, imgWidth/2, 0.0);
 
 final int maxParticles = 00;
 Robot[] particles = new Robot[maxParticles];
@@ -164,18 +165,15 @@ void setup()
 //-------------------------------------------------------------------------------
   //Initialise Robot
   myRobot = new Robot("ROBOT", diameter);        //Create a new robot object
-  myRobot.set(robotStart.x, robotStart.y, robotStart.z);
+  myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
 
   //Add sensors to the robot object
   for (int k=0; k<numSensors2; k++)
   {
+    //### Add numSensors2 amount of sensors all with x,y loacation = 0,0
     myRobot.addSensor(0, 0, -PI/2 + PI/(numSensors2-1)*k);
-    
-    //myRobot.addSensor(0,0,0);
     myRobot.sensors.get(k).sensorMinDetect = minDetectDistance;
   }
-  
-  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
   
   
@@ -279,8 +277,8 @@ void setup()
   //applyScale();    //Applies the scale to all physical quantities
 
   //size(100,100,OPENGL);
-  //surface.setResizable(true);
-  //surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
+  surface.setResizable(true);
+  surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
   //Change particle x and y values to prevent them from being inside walls
   //for (int i=0; i < maxParticles; i++)
@@ -298,7 +296,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[1], 115200);  
+  myPort = new Serial(this, Serial.list()[0], 115200);  
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
   delay(500);
@@ -362,11 +360,10 @@ void draw()
     
     drawTiles();   
     drawTarget();
-    myRobot.display();
-   ellipse(toScreenX(0), toScreenY(0), 20, 20);
+    myRobot.display();   
     
-    isInFOW();    
-    drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    //isInFOW();    
+    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -390,15 +387,15 @@ void draw()
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
   
-    findPath();
+    //findPath();
    
-    PlotRobot();
+    //PlotRobot();
     //calcProgressPoint();
     
-    //Draws an ellipse at the centerpoint of the kinect's position on the robot
+    //###Draws an ellipse at the centerpoint of the kinect's position on the robot
     //PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
     //fill(255,255,0);
-    //ellipse(returnVal.x, returnVal.y, 10,10);  
+    //ellipse(toScreenX(returnVal.x), toScreenY(returnVal.y), 10 * scaleFactor,10 * scaleFactor);  
     
     //###Displays the node positions on the map
     for (Node n: allNodes)
@@ -420,8 +417,8 @@ void draw()
     
     //if (stateVal != 0)
     //{
-    //  updateParticles();
-    //  resample();
+      //updateParticles();
+      //resample();
     //}
     
   //### Draws cartesian axis on the screen  
@@ -492,8 +489,8 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
+      //println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      //if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
     }
   }
@@ -862,11 +859,11 @@ void mousePressed()
   
   if (mousePressed && (mouseButton == RIGHT))
   { 
-    //robotStart.x = toWorldX(int(mouseX));
-    //robotStart.y = toWorldY(int(mouseY));
+    robotPosOffset.x = toWorldX(int(mouseX));
+    robotPosOffset.y = toWorldY(int(mouseY));
     
-    myRobot.location.x = toWorldX(int(mouseX));
-    myRobot.location.y = toWorldY(int(mouseY));
+    //myRobot.location.x = toWorldX(int(mouseX));
+    //myRobot.location.y = toWorldY(int(mouseY));
 
     //Resets progress point when target is moved to the current mouse position    
     myRobot.progressPoint.x = toWorldX(int(mouseX));
@@ -916,11 +913,11 @@ void changeGoal()
 
   stateVal = 1;
   
-  //Resets progress point when target is moved to the current robot position  
+  //###Resets progress point when target is moved to the current robot position  
   myRobot.progressPoint = myRobot.location;
   myRobot.makingProgress  = true;
   
-  //Changes the GOAL node to new goal position
+  //###Changes the GOAL node to new goal position
   for (int k = 0; k < allNodes.size(); k++)
   {
     if (allNodes.get(k).nodeType == "GOAL")
@@ -929,9 +926,9 @@ void changeGoal()
       allNodes.get(k).nodeYPos = goalXY.y;        
     }
   }
-  //Link all the nodes together again
+  //###Link all the nodes together again
   nodeLink();
-  //Calculate new shortest route to GOAL
+  //###Calculate new shortest route to GOAL
   findPath();
 }
 
