@@ -362,8 +362,8 @@ void draw()
     drawTarget();
     myRobot.display();   
     
-    //isInFOW();    
-    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    isInFOW();    
+    drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -387,9 +387,9 @@ void draw()
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
   
-    //findPath();
+    findPath();
    
-    //PlotRobot();
+    PlotRobot();
     //calcProgressPoint();
     
     //###Draws an ellipse at the centerpoint of the kinect's position on the robot
@@ -580,50 +580,6 @@ void updateParticles()
   }
 }
 
-//###############################################################################################
-//Applies a scale factor to all the values used according to the actual world size and the displayed screen size
-
-//MUST BE CLEANED
-void applyScale()
-{
-  myRobot.robotDiameter *= scaleFactor;
-  myRobot.noseLength *= scaleFactor;
-  myRobot.maxSpeed *= scaleFactor;
-  //myRobot.maxTurnRate *= scaleFactor;
-  minDetectDistance *= scaleFactor;        //Closer than this value and the sensors do not return valid data
-  maxDetectDistance *= scaleFactor;
-  safeZone *= scaleFactor;          //Safe area around target assumed the robot reached its goal;
-  safeDistance *= scaleFactor;
-  distanceFromWall *= scaleFactor;
-
-  //Apply the scalefactor to the position of each of the sensors
-  //sensorObstacleDist[i] will automatically be less since the map being measured is smaller
-  //for (int i = 0; i < numSensors; i++)
-  //{
-  //  sensorX[i] *= scaleFactor;
-  //  sensorY[i] *= scaleFactor;
-  //}
-
-  //Applies scale factor to sensors on the robot
-  //---should probably be moved to the robot or sensor display function
-  for (int k = 0; k < myRobot.sensors.size(); k++)
-  {
-    myRobot.sensors.get(k).sensorXPos *= scaleFactor;
-    myRobot.sensors.get(k).sensorYPos *= scaleFactor;
-    myRobot.sensors.get(k).sensorMaxDetect *= scaleFactor;
-  }
-  
-  //Applies scale factor to each particle
-  for (int k = 0; k < maxParticles; k++)
-  {
-    for (int i = 0; i < numSensors2; i++)
-    {
-      particles[k].sensors.get(i).sensorXPos *= scaleFactor;
-      particles[k].sensors.get(i).sensorYPos *= scaleFactor;
-      particles[k].sensors.get(i).sensorMaxDetect *= scaleFactor;
-    }
-  }
-}
 //###############################################################################################
 //Main FSM for robot movement and decisions
 void PlotRobot()

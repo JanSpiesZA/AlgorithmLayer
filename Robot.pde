@@ -125,7 +125,8 @@ class Robot{
     }
   }
   
-  //Calcualtes distances to obstacles for each sensor in the sensor array   
+  //###Calcualtes distances to obstacles for each sensor in the sensor array
+  //###  This function is used by the particles to sense distance to 
   void sense()
   {
     for (int k = 0; k < sensors.size(); k++)
