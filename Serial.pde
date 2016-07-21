@@ -6,6 +6,7 @@ int cr = 13;
 
 String inData = null;
 String[] list = null;
+String[] list2 = null;
 
 void requestSerialPosition()
 {
@@ -51,6 +52,20 @@ void parseSerialData()
       
       case 's':
       {
+        break;
+      }
+      
+      case 'd':
+      {
+        //###Create a substring of inData starting at location 1 in the string
+        //###   this removes the very first character from inData
+        inData = inData.substring(1);
+        list = split(inData, ",");
+        for (int cnt = 0; cnt < numSensors2; cnt++)
+        {
+          list2 = split(list[cnt], ":");
+          myRobot.sensors.get(int(list2[0])).sensorObstacleDist = int(list2[1]);
+        }        
         break;
       }
     }
