@@ -205,33 +205,22 @@ void setup()
   println("img.Width : "+img.width+", img.Height: "+img.height);
   println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
   println("scaleFactor :"+scaleFactor);
-  
-  //maxTilesX = 1 + 2 * ceil((img.width/2 - tileSize/2) / tileSize);
-  //maxTilesY = 1 + 2 * ceil((img.height/2 - tileSize/2) / tileSize);
-  
   println(maxTilesX+","+maxTilesY);
   
   tile = new Tile[maxTilesX][maxTilesY]; //<>//
-  
-  
-  
   
   //### Calculates strating coords for tiles to ensure the 4 center tiles have their corners touching
   //###  in the middle of the screen 
   float _startX = img.width/2.0 - tileSize/2.0 - tileSize*(maxTilesX/2.0 - 1); // -(tileSize * (maxTilesX - 1) / 2);
   float _startY = img.height/2.0 - tileSize/2.0 - tileSize*(maxTilesY/2.0 - 1);
   println("startX: "+_startX+", startY: "+_startY);
-  //float _startY = 0.0; //-(tileSize * (maxTilesY - 1) / 2);
-  //println("startX: "+_startX +", startY: "+_startY);
-  
   
   //###Sets up a 2D array which will hold the world Tiles
   for (int x = 0; x < maxTilesX; x++) //<>//
   {
     for (int y = 0; y < maxTilesY; y++)
     {
-      tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
-      //tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));
+      tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));  
     }
   }
   
