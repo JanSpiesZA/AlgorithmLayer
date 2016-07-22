@@ -29,9 +29,9 @@ PImage img;
 
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
 
-//Actual distance of measured on ground, measured in cm's, where one pixel = 1cm???
-float worldMapScaleX = 800; //3737;      //To be used as the actual distance of the world map x axis, measured in cm
-float worldMapScaleY = 800; //1137;
+//Actual distance of measured on ground, measured in cm's
+float worldMapScaleX = 0; //3737;      //To be used as the actual distance of the world map x axis, measured in cm
+float worldMapScaleY = 0; //1137;
 
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
@@ -39,8 +39,8 @@ float worldHeight = worldMapScaleY;    //New variable for world height that shou
 float imgWidth = 800;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
 float imgHeight = 800;
 
-float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
-float viewPortHeight = 800;
+float viewPortWidth = 400;    //Area that will be displayed on the screen using the same units as worldWidthReal
+float viewPortHeight = 400;
 
 float graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
 float graphicBoxHeight = 800;
@@ -48,10 +48,10 @@ float graphicBoxHeight = 800;
 float screenSizeX = graphicBoxWidth;
 float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
 
-float vpX = 0; //-viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
-float vpY = viewPortHeight; ///2;      ///The y-coord of the top left corner of the viewPort
+float vpX = 0.0; //-viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
+float vpY = 0.0; // + viewPortHeight; ///2;      ///The y-coord of the btm left corner of the viewPort
 
-float scaleFactor = graphicBoxWidth / viewPortWidth;
+float scaleFactor = 0.0;
 
 boolean wallDetect = false;
 
@@ -152,6 +152,12 @@ String mapName = "blank.png";
 
 void setup()
 {
+  //###Calculates cale factor used to scale all screen avatars/objects
+  scaleFactor = graphicBoxWidth / viewPortWidth;
+  //### Set viewpoint x and y so that robot is in the middle of the viewPort with startup
+  vpX = robotPosOffset.x - viewPortWidth / 2.0;
+  vpY = robotPosOffset.y + viewPortHeight / 2.0;
+  
   kinect = new Kinect(this);
   kinect.initDepth();
   kinectTilt = kinect.getTilt();
@@ -202,7 +208,7 @@ void setup()
   
   println(maxTilesX+","+maxTilesY);
   
-  tile = new Tile[int(maxTilesX)][int(maxTilesY)]; //<>//
+  tile = new Tile[maxTilesX][maxTilesY]; //<>//
   
   
   
@@ -223,27 +229,27 @@ void setup()
   }
   
   //Scans the pixels of the background image to build the occupancy grid
-  img.filter(THRESHOLD);              //Convert image to greyscale
-  for (int x = 0; x < imgWidth; x++)
-  {
-    for (int y = 0; y < imgHeight; y++)
-    {
-      color c = img.get(x,y);      
-      if (c == color(0))
-      {         
-        int tileX = floor(toWorldX(x) / tileSize); // + (maxTilesX) / 2.0);
-        int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);  
-        //println(tileX+":"+tileY);
-        //print("tileSize: "+tileSize+", x: "+x+"("+toWorldX(x)+"), y: "+y+"("+toWorldY(y)+"), tileX:Y = "+tileX+":"+tileY);
-        if ((tileX >= 0) && (tileY >= 0))
-        {          
-          tile[tileX][tileY].gravity = 1;
-          tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
-          tile[tileX][tileY].update();
-        }
-      }      
-    }
-  }
+  //img.filter(THRESHOLD);              //Convert image to greyscale
+  //for (int x = 0; x < imgWidth; x++)
+  //{
+  //  for (int y = 0; y < imgHeight; y++)
+  //  {
+  //    color c = img.get(x,y);      
+  //    if (c == color(0))
+  //    {         
+  //      int tileX = floor(toWorldX(x) / tileSize); // + (maxTilesX) / 2.0);
+  //      int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);  
+  //      //println(tileX+":"+tileY);
+  //      //print("tileSize: "+tileSize+", x: "+x+"("+toWorldX(x)+"), y: "+y+"("+toWorldY(y)+"), tileX:Y = "+tileX+":"+tileY);
+  //      if ((tileX >= 0) && (tileY >= 0))
+  //      {          
+  //        tile[tileX][tileY].gravity = 1;
+  //        tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
+  //        tile[tileX][tileY].update();
+  //      }
+  //    }      
+  //  }
+  //}
   
   
   
