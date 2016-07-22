@@ -250,10 +250,10 @@ void setup()
   
   
   
-  //### Calculate new resolution for img resize values
-  //float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
-  //float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
-  //img.resize(int(newWidth), int(newHeight));  
+  //### Calculate new resolution for img resize values to ensure img is displayed accoridng to viewPort width
+  float newWidth = imgWidth / viewPortWidth * graphicBoxWidth;
+  float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
+  img.resize(int(newWidth), int(newHeight));  
   
   
 
