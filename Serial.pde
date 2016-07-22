@@ -18,11 +18,11 @@ void requestSerialPosition()
 //###Sends new velocity and heading data to driver layer
 void updateRobot(float _velocityToGoal, float _moveAngle)
 {
-  //###Limits max velocity to between
+  //###Limits max velocity and moveAngle to between
   _velocityToGoal = constrain (_velocityToGoal, -200, 200);  
-  _moveAngle = constrain (_moveAngle, -1, 1);
+  _moveAngle = constrain (_moveAngle, -0.5, 0.5);
   
-  println("TXING!!!");
+  //println("TXING!!!");
   String tempAngle = nf(_moveAngle,1,2);
   _moveAngle = float(tempAngle);
   _moveAngle *= 1000;
