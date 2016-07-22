@@ -36,8 +36,8 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 800;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 800;
+float imgWidth = 910;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 910;
 
 float viewPortWidth = 400;    //Area that will be displayed on the screen using the same units as worldWidthReal
 float viewPortHeight = 400;
@@ -48,8 +48,8 @@ float graphicBoxHeight = 800;
 float screenSizeX = graphicBoxWidth;
 float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
 
-float vpX = 0.0; //-viewPortWidth/2;      //The x-coord of the top left corner of the viewPort
-float vpY = 0.0; // + viewPortHeight; ///2;      ///The y-coord of the btm left corner of the viewPort
+float vpX = 0.0; //The x-coord of the top left corner of the viewPort
+float vpY = 0.0; //The y-coord of the top left corner of the viewPort
 
 float scaleFactor = 0.0;
 
@@ -193,11 +193,14 @@ void setup()
   
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight)); 
-  
-  //tileSize *= scaleFactor;        //Aplies scale factor to the tile size
     
   maxTilesX = ceil((float(img.width)/(tileSize)));
-  maxTilesY = ceil((float(img.height)/(tileSize)));  
+  maxTilesY = ceil((float(img.height)/(tileSize)));
+  
+  //### Make sure the amount of tiles is ALWAYS an even number
+  //###  Currently the quad tree process divides the number of tiles to create the quads and wont work correctly if maxTiles is odd
+  if (maxTilesX % 2 != 0) maxTilesX++;
+  if (maxTilesY % 2 != 0) maxTilesY++;
   
   println("img.Width : "+img.width+", img.Height: "+img.height);
   println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
@@ -213,18 +216,22 @@ void setup()
   
   
   
-  //Sets up a 2D array which will hold the world Tiles 
-  //float _startX = 0.0; //-(tileSize * (maxTilesX - 1) / 2);
+  //### Calculates strating coords for tiles to ensure the 4 center tiles have their corners touching
+  //###  in the middle of the screen 
+  float _startX = img.width/2.0 - tileSize/2.0 - tileSize*(maxTilesX/2.0 - 1); // -(tileSize * (maxTilesX - 1) / 2);
+  float _startY = img.height/2.0 - tileSize/2.0 - tileSize*(maxTilesY/2.0 - 1);
+  println("startX: "+_startX+", startY: "+_startY);
   //float _startY = 0.0; //-(tileSize * (maxTilesY - 1) / 2);
   //println("startX: "+_startX +", startY: "+_startY);
-  //Sets up a 2D array which will hold the world Tiles
+  
+  
+  //###Sets up a 2D array which will hold the world Tiles
   for (int x = 0; x < maxTilesX; x++) //<>//
   {
     for (int y = 0; y < maxTilesY; y++)
     {
-      //tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
-      tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));  
-      //println(tile[x][y].tilePos.x+":"+tile[x][y].tilePos.y);
+      tile[x][y] = new Tile((_startX + tileSize * x), (_startY +  y * tileSize));
+      //tile[x][y] = new Tile(int(x*tileSize + tileSize/2), int(y*tileSize + tileSize/2));
     }
   }
   
