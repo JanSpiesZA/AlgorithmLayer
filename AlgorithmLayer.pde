@@ -36,11 +36,11 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 910;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 910;
+float imgWidth = 1500;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 1500;
 
-float viewPortWidth = 400;    //Area that will be displayed on the screen using the same units as worldWidthReal
-float viewPortHeight = 400;
+float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
+float viewPortHeight = 800;
 
 float graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
 float graphicBoxHeight = 800;
@@ -225,27 +225,27 @@ void setup()
   }
   
   //Scans the pixels of the background image to build the occupancy grid
-  //img.filter(THRESHOLD);              //Convert image to greyscale
-  //for (int x = 0; x < imgWidth; x++)
-  //{
-  //  for (int y = 0; y < imgHeight; y++)
-  //  {
-  //    color c = img.get(x,y);      
-  //    if (c == color(0))
-  //    {         
-  //      int tileX = floor(toWorldX(x) / tileSize); // + (maxTilesX) / 2.0);
-  //      int tileY = floor(toWorldY(y) / tileSize); // + (maxTilesY) / 2.0);  
-  //      //println(tileX+":"+tileY);
-  //      //print("tileSize: "+tileSize+", x: "+x+"("+toWorldX(x)+"), y: "+y+"("+toWorldY(y)+"), tileX:Y = "+tileX+":"+tileY);
-  //      if ((tileX >= 0) && (tileY >= 0))
-  //      {          
-  //        tile[tileX][tileY].gravity = 1;
-  //        tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
-  //        tile[tileX][tileY].update();
-  //      }
-  //    }      
-  //  }
-  //}
+  img.filter(THRESHOLD);              //Convert image to greyscale
+  for (int x = 0; x < imgWidth; x++)
+  {
+    for (int y = 0; y < imgHeight; y++)
+    {
+      color c = img.get(x,y);      
+      if (c == color(0))
+      {         
+        int tileX = floor((x) / tileSize);
+        int tileY = floor((imgHeight - 1 - y) / tileSize);  
+        //println(tileX+":"+tileY);
+        //print("tileSize: "+tileSize+", x: "+x+"("+toWorldX(x)+"), y: "+y+"("+toWorldY(y)+"), tileX:Y = "+tileX+":"+tileY);
+        if ((tileX >= 0) && (tileY >= 0))
+        {          
+          tile[tileX][tileY].gravity = 1;
+          tile[tileX][tileY].tileType = "MAP";      //Set tileType to PERMANENT/MAP OBSTACLE
+          tile[tileX][tileY].update();
+        }
+      }      
+    }
+  }
   
   
   
