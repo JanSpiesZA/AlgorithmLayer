@@ -229,20 +229,3 @@ void applyScale()
 //  result.y = nextWaypoint.y - myRobot.location.y;  
 //  return result; //.normalize();
 //}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//PVector calculateVectorBlendedAOGTG()
-//{
-//  PVector result = new PVector();
-//  float dist = vectorAvoidObstacles.mag();
-//  float beta = 0.002;          //The smaller this value gets the smaller sigma becomes
-//  float sigma = 1 - exp(-beta*dist);
-//  PVector gtgBlend = new PVector();
-//  PVector aoBlend = new PVector();  
-  
-//  PVector.mult(vectorGoToGoal,sigma, gtgBlend);
-//  PVector.mult(vectorAvoidObstacles, (1-sigma), aoBlend); 
-
-//  result = PVector.add(gtgBlend, aoBlend);
-//  return result;
-//}

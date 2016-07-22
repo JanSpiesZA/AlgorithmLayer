@@ -459,14 +459,18 @@ void draw()
 
     //###Calculates the vector to avoid all obstacles
     vectorAvoidObstacles = calcVectorAvoidObstacles();
+    vectorAvoidObstacles.mult(100);    
     //vectorAvoidObstacles.set(0,0,0); //Vector set to zero until sensor data is incorporated
     
     //###Calculates the vector to the next waypoint / Go To Goal vector
     vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
-    vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;    
+    vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;
+    vectorGoToGoal.normalize();
+    vectorGoToGoal.mult(100);
     
     //###Calculates the vector which blends the Go to Goal and Avoid Obstacles
-    vectorAOFWD = PVector.add(vectorGoToGoal, vectorAvoidObstacles);  
+    vectorAOFWD = calculateVectorBlendedAOGTG(); //PVector.add(vectorGoToGoal, vectorAvoidObstacles);  
+    
     
     //###Calcualtes the angle in which the robot needs to travel   
     float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
@@ -489,6 +493,7 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
+      println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       //println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
       //if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
@@ -727,6 +732,7 @@ PVector calcVectorAvoidObstacles()
       }
     }
   }
+  vectorAO.normalize();  
   
   //for (int k = 0; k < myRobot.sensors.size(); k++)
   //{
@@ -745,6 +751,23 @@ PVector calcVectorAvoidObstacles()
   //tempCoords.y = tempCoords.y - myRobot.location.y;
   
   return vectorAO;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+PVector calculateVectorBlendedAOGTG()
+{
+  PVector result = new PVector();
+  float dist = vectorAvoidObstacles.mag();
+  float beta = 0.01;          //The smaller this value gets the smaller sigma becomes
+  float sigma = 1 - exp(-beta*dist);
+  PVector gtgBlend = new PVector();
+  PVector aoBlend = new PVector();  
+  
+  PVector.mult(vectorGoToGoal,sigma, gtgBlend);
+  PVector.mult(vectorAvoidObstacles, (1-sigma), aoBlend); 
+
+  result = PVector.add(gtgBlend, aoBlend);
+  return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -778,7 +801,7 @@ void dispVectors()
   strokeWeight(4);
   stroke(255,0,0);
   line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x*10)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y*10)));
+       toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
   
   //###Draws a vector straight towards the goal
   strokeWeight(5);
@@ -791,7 +814,7 @@ void dispVectors()
   stroke(0,0, 255);
   //line(myRobot.location.x, myRobot.location.y, myRobot.location.x + vectorBlendedAOGTG.x * 100, myRobot.location.y + vectorBlendedAOGTG.y * 100);
   line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAOFWD.x * 10)), toScreenY(int(myRobot.location.y + vectorAOFWD.y * 10)));
+       toScreenX(int(myRobot.location.x + vectorAOFWD.x)), toScreenY(int(myRobot.location.y + vectorAOFWD.y)));
 }
 
 
@@ -821,7 +844,7 @@ void mousePressed()
     //myRobot.location.x = toWorldX(int(mouseX));
     //myRobot.location.y = toWorldY(int(mouseY));
 
-    //Resets progress point when target is moved to the current mouse position    
+    //###Resets progress point when target is moved to the current mouse position    
     myRobot.progressPoint.x = toWorldX(int(mouseX));
     myRobot.progressPoint.y = toWorldY(int(mouseY));
     myRobot.makingProgress = true;
@@ -852,10 +875,8 @@ void mouseWheel(MouseEvent event)
   float newHeight = imgHeight / viewPortHeight * graphicBoxWidth;
   img.resize(int(newWidth), int(newHeight));
   
-  
-  
-  println("vpX: "+vpX+", vpY: "+vpY+", viewPortWidth: "+viewPortWidth+", viewPortHeight: "+viewPortHeight);
-  println(scaleFactor);
+  //println("vpX: "+vpX+", vpY: "+vpY+", viewPortWidth: "+viewPortWidth+", viewPortHeight: "+viewPortHeight);
+  //println(scaleFactor);
 }
 
 //Change the goal location everytime the mouse is clicked
@@ -925,28 +946,28 @@ void keyPressed()
   {
     vpY += 10;
     if (vpY >= imgHeight + 100) vpY = imgHeight + 100;
-    println(vpY);
+    //println(vpY);
   }
     
   if (key == 's')
   {
     vpY -= 10;
     if (vpY <= viewPortHeight - 100) vpY = viewPortHeight - 100;
-    println(vpY);
+    //println(vpY);
   }
   
   if (key == 'a')
   {
     vpX -= 10;
     if (vpX <= -100) vpX = -100;
-    println(vpX);
+    //println(vpX);
   }
     
   if (key == 'd')
   {
     vpX += 10;
     if (vpX >= (imgWidth + 100 - viewPortWidth)) vpX = (imgWidth + 100 - viewPortWidth);
-    println(vpX);
+    //println(vpX);
   }
     
   if (key == ' ') showVal = true;  
