@@ -276,8 +276,6 @@ void setup()
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  //applyScale();    //Applies the scale to all physical quantities
-
   //size(100,100,OPENGL);
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
@@ -483,7 +481,8 @@ void draw()
     float velocityToGoal = 0.0;
     if (allowV)
     {
-      velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
+      velocityToGoal = vectorAOFWD.mag();
+      //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
     }
     else
     {
@@ -495,9 +494,9 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
-      //println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      //if (allowTX) updateRobot(velocityToGoal, angleToGoal);
+      //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
+      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
       old_time = time;
     }
   }
