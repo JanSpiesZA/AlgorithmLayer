@@ -21,9 +21,11 @@ float deltaX = tan(radians(kinectFOW/2)) * maxKinectPersistantView;
 PVector leftPoint = new PVector(kinectPos.x + maxKinectPersistantView, deltaX, 0);
 PVector rightPoint = new PVector(kinectPos.x + maxKinectPersistantView, -deltaX, 0);
 
-
-
-
+float alpha = 0.1;  //### Scaling value of attractive force - must be moved out of Tile class
+float s = 100.0;    //### Spread of the goal's circle of influnce - must be moved out of Tile class
+float obstacleS = 0.0;
+float beta = 1.0  ; //scale value of pushing force
+float infinity = 1000.0;
 
 PImage img;
 
@@ -36,8 +38,8 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 1500;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 1500;
+float imgWidth = 800;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 800;
 
 float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
 float viewPortHeight = 800;
@@ -58,7 +60,7 @@ boolean wallDetect = false;
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
 //###Offset position of robot in the world map since real robot starts at world coords 0,0 but onscreen it is not 0,0
-PVector robotPosOffset = new PVector (imgWidth/2, imgWidth/2, 0.0);
+PVector robotPosOffset = new PVector (80, 155, 0.0); //imgWidth/2, imgWidth/2, 0.0);
 
 final int maxParticles = 00;
 Robot[] particles = new Robot[maxParticles];
@@ -74,7 +76,7 @@ float moveGain = 0.01;
 float blendGain = 0.5;      //Gain used when blending the AO and GTG vectors;
 float normaliseGain = 100.0;
 
-float safeZone = 20.0;          //Safe area around target assumed the robot reached its goal;
+float safeZone = 10.0;          //Safe area around target assumed the robot reached its goal;
 
 //safeDistance cannot be less than minDetectDistance
 float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle
@@ -146,9 +148,12 @@ int delta_t = 500;
 boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
 boolean allowV = false;      //Allows the v movement of the robot
 
+PVector agent = new PVector(10.0, 10.0, 0.0);
+
 //String mapName = "Floorplan.png";
-String mapName = "blank.png";
-//String mapName = "kamer3.png";
+//String mapName = "blank.png";
+//String mapName = "Huisplan.png";
+String mapName = "kamer3.png";
 
 void setup()
 {
@@ -225,7 +230,7 @@ void setup()
   }
   
   //Scans the pixels of the background image to build the occupancy grid
-  img.filter(THRESHOLD);              //Convert image to greyscale
+  img.filter(THRESHOLD, 0.9);              //Convert image to greyscale
   for (int x = 0; x < imgWidth; x++)
   {
     for (int y = 0; y < imgHeight; y++)
@@ -310,7 +315,7 @@ void setup()
   inData = null;
   myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
   
-  
+  obstacleS = 1.414 * tileSize;
  
 }
 
@@ -362,8 +367,8 @@ void draw()
     drawTarget();
     myRobot.display();   
     
-    isInFOW();    
-    drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    //isInFOW();    
+    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
     
     //oldMillis = newMillis;
     //newMillis = millis();
@@ -391,6 +396,11 @@ void draw()
    
     PlotRobot();
     //calcProgressPoint();
+    
+    fill(0,255,0);
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 10, 10);
+    agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
+    agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
     //###Draws an ellipse at the centerpoint of the kinect's position on the robot
     //PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
@@ -420,6 +430,19 @@ void draw()
       //updateParticles();
       //resample();
     //}
+    
+    //### Calculates the attractive field for each tile
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }
     
   //### Draws cartesian axis on the screen  
   strokeWeight(2);
@@ -517,7 +540,7 @@ void drawTiles()
     for (int y = 0; y < maxTilesY; y++)
     {
       tile[x][y].tileDraw();
-      if (tile[x][y].tileType == "MAP" || tile[x][y].tileType == "USER" || tile[x][y].tileType == "KINECT")
+      //if (tile[x][y].tileType == "MAP" || tile[x][y].tileType == "USER" || tile[x][y].tileType == "KINECT")
       {
         tile[x][y].drawTileForce();
       }
@@ -996,6 +1019,12 @@ void keyPressed()
       }
     }
   }
+  
+  if (key == 'a')
+  {
+    agent.x = toWorldX(mouseX);
+    agent.y = toWorldY(mouseY);
+  }
 }
 
 
@@ -1024,4 +1053,66 @@ float toWorldX (int _x)
 float toWorldY (int _y)
 {
   return (vpY - float(_y) / graphicBoxHeight * viewPortHeight) - 1; //removed -1
+}
+
+
+//### Calculates the force flow vector based on the position for a specific x and y coords
+//### Implementation of the concepts in the following website and paper:
+//  http://www.cs.mcgill.ca/~hsafad/robotics/
+//  Michael A. Goodrich, Potential Fields Tutorial, http://borg.cc.gatech.edu/ipr/files/goodrich_potential_fields.pdf
+PVector calcAttractField(float _x, float _y)
+{
+  PVector attractField = new PVector();
+  float d = sqrt(pow(goalXY.x - _x, 2) + pow(_y - goalXY.y, 2));
+  float angle = atan2(goalXY.y - _y, goalXY.x - _x);
+  
+  if (d < tileSize)
+  {
+    attractField.x = 0;
+    attractField.y = 0;
+  }
+  
+  if ((d >= tileSize) && (d <= s+tileSize))
+  {
+    attractField.x = alpha * (d - tileSize) * cos(angle);
+    attractField.y = alpha * (d - tileSize) * sin(angle);
+  }
+  
+  if (d > (s+tileSize))
+  {
+    attractField.x = alpha * s * cos(angle);
+    attractField.y = alpha * s * sin(angle);
+  }
+  return attractField;
+}
+  
+PVector calcRepulsiveField(float _x, float _y)
+{
+  PVector repulsiveField = new PVector();
+  
+  for (int k = 0; k < maxTilesX; k++)
+  {
+    for (int l = 0; l < maxTilesY; l++)
+    {
+      //### Test to see if tile is an obstacle tile
+      if (tile[k][l].tileType != "UNASSIGNED")
+      {
+        float d = sqrt(pow(tile[k][l].tilePos.x - _x, 2) + pow(_y - tile[k][l].tilePos.y, 2));
+        float angle = atan2(tile[k][l].tilePos.y - _y, tile[k][l].tilePos.x - _x);
+        
+        if ((d >= tileSize) && (d <= obstacleS + tileSize))
+        {
+          repulsiveField.x += -beta * (obstacleS + tileSize - d) * cos(angle);
+          repulsiveField.y += -beta * (obstacleS + tileSize - d) * sin(angle);
+        }
+        
+        if (d > (obstacleS + tileSize))
+        {
+          repulsiveField.x += 0;
+          repulsiveField.y += 0;
+        }        
+      }
+    }
+  }
+  return repulsiveField;
 }
