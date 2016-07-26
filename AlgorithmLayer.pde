@@ -24,7 +24,7 @@ PVector rightPoint = new PVector(kinectPos.x + maxKinectPersistantView, -deltaX,
 float alpha = 0.1;  //### Scaling value of attractive force - must be moved out of Tile class
 float s = 100.0;    //### Spread of the goal's circle of influnce - must be moved out of Tile class
 float obstacleS = 0.0;
-float beta = 0.5  ; //scale value of pushing force
+float beta = 0.1; //scale value of pushing force
 float infinity = 1000.0;
 
 PImage img;
@@ -399,7 +399,7 @@ void draw()
     //calcProgressPoint();
     
     fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40, 40);
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
     agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
     agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
@@ -482,18 +482,20 @@ void draw()
     step = true;
 
     //###Calculates the vector to avoid all obstacles
-    vectorAvoidObstacles = calcVectorAvoidObstacles();
-    vectorAvoidObstacles.mult(100);    
+    //vectorAvoidObstacles = calcVectorAvoidObstacles();
+    //vectorAvoidObstacles.mult(100);    
     //vectorAvoidObstacles.set(0,0,0); //Vector set to zero until sensor data is incorporated
     
     //###Calculates the vector to the next waypoint / Go To Goal vector
-    vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
-    vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;
-    vectorGoToGoal.normalize();
-    vectorGoToGoal.mult(100);
+    //vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
+    //vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;
+    //vectorGoToGoal.normalize();
+    //vectorGoToGoal.mult(100);
     
     //###Calculates the vector which blends the Go to Goal and Avoid Obstacles
-    vectorAOFWD = calculateVectorBlendedAOGTG(); //PVector.add(vectorGoToGoal, vectorAvoidObstacles);  
+    //vectorAOFWD = calculateVectorBlendedAOGTG(); //PVector.add(vectorGoToGoal, vectorAvoidObstacles);
+    vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
+    vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
     
     
     //###Calcualtes the angle in which the robot needs to travel   
@@ -823,16 +825,16 @@ void drawTarget()
 void dispVectors()
 {  
   //Draws a vector pointing away from all the obstacles
-  strokeWeight(4);
-  stroke(255,0,0);
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
+  //strokeWeight(4);
+  //stroke(255,0,0);
+  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+  //     toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
   
   //###Draws a vector straight towards the goal
-  strokeWeight(5);
-  stroke(0,255, 0);  
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorGoToGoal.x)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y)));
+  //strokeWeight(5);
+  //stroke(0,255, 0);  
+  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+  //     toScreenX(int(myRobot.location.x + vectorGoToGoal.x)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y)));
   
   //###Draws a vector which is a blend between the goal and avoid obstacles
   strokeWeight(5);
