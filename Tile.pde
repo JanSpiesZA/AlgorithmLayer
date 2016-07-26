@@ -82,13 +82,13 @@ class Tile
     rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize * scaleFactor, tileSize * scaleFactor);
     
     //###Draws an ellipse according to the spread of the obstacles
-    if (tileType != "UNASSIGNED")
-    {
-      noFill();
-      strokeWeight(0);
-      stroke(0);
-      ellipse(toScreenX(tilePos.x), toScreenY(tilePos.y), obstacleS * scaleFactor, obstacleS * scaleFactor);
-    }
+    //if (tileType != "UNASSIGNED")
+    //{
+    //  noFill();
+    //  strokeWeight(0);
+    //  stroke(0);
+    //  ellipse(toScreenX(tilePos.x), toScreenY(tilePos.y), obstacleS * scaleFactor, obstacleS * scaleFactor);
+    //}
     
     
     //####Text to display the real world coords of the tile on the screen
@@ -101,10 +101,10 @@ class Tile
 
   void drawTileForce()
   {
-    //Draws a flowfield indicator
-    strokeWeight(0);
-    stroke(0);
-    ellipse(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), 1, 1);
-    line (toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), toScreenX(int(tilePos.x + field.x)), toScreenY(int(tilePos.y + field.y)));    
+    //###Draws a flowfield indicator
+    //strokeWeight(0);
+    //stroke(0);
+    //ellipse(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), 1, 1);
+    //line (toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), toScreenX(int(tilePos.x + field.x)), toScreenY(int(tilePos.y + field.y)));    
   }
 }

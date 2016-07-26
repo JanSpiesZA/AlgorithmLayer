@@ -24,7 +24,7 @@ PVector rightPoint = new PVector(kinectPos.x + maxKinectPersistantView, -deltaX,
 float alpha = 0.1;  //### Scaling value of attractive force - must be moved out of Tile class
 float s = 100.0;    //### Spread of the goal's circle of influnce - must be moved out of Tile class
 float obstacleS = 0.0;
-float beta = 1.0  ; //scale value of pushing force
+float beta = 0.5  ; //scale value of pushing force
 float infinity = 1000.0;
 
 PImage img;
@@ -38,7 +38,7 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 800;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgWidth = 1600;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
 float imgHeight = 800;
 
 float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
@@ -152,8 +152,8 @@ PVector agent = new PVector(10.0, 10.0, 0.0);
 
 //String mapName = "Floorplan.png";
 //String mapName = "blank.png";
-//String mapName = "Huisplan.png";
-String mapName = "kamer3.png";
+String mapName = "Huisplan.png";
+//String mapName = "kamer3.png";
 
 void setup()
 {
@@ -315,7 +315,8 @@ void setup()
   inData = null;
   myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
   
-  obstacleS = 1.414 * tileSize;
+  //obstacleS = 1.414 * tileSize;
+  obstacleS = 50.0;    //##Includes the safety distance from the wall - robot x,y plus min distance from wall
  
 }
 
@@ -398,7 +399,7 @@ void draw()
     //calcProgressPoint();
     
     fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 10, 10);
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40, 40);
     agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
     agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
@@ -432,17 +433,17 @@ void draw()
     //}
     
     //### Calculates the attractive field for each tile
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
     
   //### Draws cartesian axis on the screen  
   strokeWeight(2);
@@ -1020,7 +1021,7 @@ void keyPressed()
     }
   }
   
-  if (key == 'a')
+  if (key == ' ')
   {
     agent.x = toWorldX(mouseX);
     agent.y = toWorldY(mouseY);
