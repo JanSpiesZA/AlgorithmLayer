@@ -38,8 +38,13 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 1130;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 530;
+//Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
+//String mapName = "Floorplan.png";
+String mapName = "blank.png";
+//String mapName = "Huisplan.png";
+//String mapName = "kamer3.png";
+float imgWidth = 780; //1130;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 780; //530;
 
 float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
 float viewPortHeight = 800;
@@ -150,10 +155,7 @@ boolean allowV = false;      //Allows the v movement of the robot
 
 PVector agent = new PVector(10.0, 10.0, 0.0);
 
-//String mapName = "Floorplan.png";
-//String mapName = "blank.png";
-String mapName = "Huisplan.png";
-//String mapName = "kamer3.png";
+
 
 void setup()
 {
@@ -301,7 +303,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[1], 115200);  
+  myPort = new Serial(this, Serial.list()[0], 115200);  
   //myPort = new Serial(this, Serial.list()[0], 115200);
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
@@ -385,7 +387,7 @@ void draw()
     allNodes.clear(); //<>//
     ////###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////###  will not be used in path planning
-    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
+    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
     allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
     allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
     
