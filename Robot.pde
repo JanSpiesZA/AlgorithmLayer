@@ -91,7 +91,15 @@ class Robot{
         fill(255,0,0);
         ellipse(toScreenX(location.x), toScreenY(location.y), max(1,prob*10), max(1,prob*10));  //Shows a small red dot where the head of the particle is else proportionate to the probability        
         textAlign(CENTER, CENTER);
-        fill(0);        
+        fill(0);   
+        
+        //###Display simulated sensor data on screen
+        for (int k = 0; k < sensors.size(); k++)
+        {
+          fill(255,0,0);          
+          sensors.get(k).display(location.x,location.y,heading);
+          sensors.get(k).displaySensorData(location.x,location.y,heading);
+        }
         break;
     } 
     stroke(0);    
@@ -132,7 +140,7 @@ class Robot{
     for (int k = 0; k < sensors.size(); k++)
     {
       sensors.get(k).sense(location.x,location.y,heading);
-      if (sensors.get(k).sensorObstacleDist <= safeDistance) myRobot.collisionFlag = true;
+      if (sensors.get(k).sensorObstacleDist <= safeDistance) myRobot.collisionFlag = true;      
     }
   }  
   

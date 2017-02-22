@@ -1,5 +1,6 @@
 import processing.serial.*;
 Serial myPort;
+Serial usPort;
 
 int lf = 10;
 int cr = 13;

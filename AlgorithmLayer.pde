@@ -24,7 +24,7 @@ PVector rightPoint = new PVector(kinectPos.x + maxKinectPersistantView, -deltaX,
 float alpha = 0.1;  //### Scaling value of attractive force - must be moved out of Tile class
 float s = 100.0;    //### Spread of the goal's circle of influnce - must be moved out of Tile class
 float obstacleS = 0.0;
-float beta = 0.1; //scale value of pushing force
+float beta = 0.07; //scale value of pushing force
 float infinity = 1000.0;
 
 PImage img;
@@ -38,8 +38,8 @@ float worldMapScaleY = 0; //1137;
 float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
 float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
-float imgWidth = 1600;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 800;
+float imgWidth = 1130;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = 530;
 
 float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
 float viewPortHeight = 800;
@@ -62,7 +62,7 @@ float diameter = 45.0;
 //###Offset position of robot in the world map since real robot starts at world coords 0,0 but onscreen it is not 0,0
 PVector robotPosOffset = new PVector (80, 155, 0.0); //imgWidth/2, imgWidth/2, 0.0);
 
-final int maxParticles = 00;
+final int maxParticles = 10;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -271,7 +271,7 @@ void setup()
   for (int i = 0; i < maxParticles; i++)
   {
     particles[i] = new Robot("PARTICLE");
-    particles[i].set(screenSizeX/2, screenSizeY/2, -PI/2);
+    particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
     particles[i].setNoise(noiseForward, noiseTurn, noiseSense);    //Add noise to newly created particle
 
     for (int k = 0; k < numSensors2; k++)
@@ -301,7 +301,8 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 115200);  
+  myPort = new Serial(this, Serial.list()[1], 115200);  
+  //myPort = new Serial(this, Serial.list()[0], 115200);
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
   delay(500);
@@ -384,18 +385,18 @@ void draw()
     allNodes.clear(); //<>//
     ////###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////###  will not be used in path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
     allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
     allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
     
     //oldMillis = millis();
-    nodeLink();
+    //nodeLink();
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
   
-    findPath();
+    //findPath();
    
-    PlotRobot();
+    //PlotRobot();
     //calcProgressPoint();
     
     fill(0,255,0);
@@ -417,11 +418,11 @@ void draw()
     //int startTime = millis();
     //myRobot.sense();          //Makes use of sensor class to detect obstacles
     
-    //for (int k = 0; k < maxParticles; k++)
-    //{
-    //  particles[k].sense();
-    //  particles[k].measureProb();
-    //}
+    for (int k = 0; k < maxParticles; k++)
+    {
+      particles[k].sense();
+      particles[k].measureProb();
+    }
     
     //int endTime = millis();
     //println(endTime - startTime);
@@ -429,21 +430,21 @@ void draw()
     //if (stateVal != 0)
     //{
       //updateParticles();
-      //resample();
+      resample();
     //}
     
     //### Calculates the attractive field for each tile
-    //for (int k = 0; k < maxTilesX; k++)
-    //{
-    //  for (int l = 0; l < maxTilesY; l++)
-    //  {
-    //    if (tile[k][l].tileType == "UNASSIGNED")
-    //    {
-    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-    //    }
-    //  }
-    //}
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }
     
   //### Draws cartesian axis on the screen  
   strokeWeight(2);
@@ -503,17 +504,13 @@ void draw()
     if (angleToGoal < (-PI)) angleToGoal += 2*PI;
     if (angleToGoal > (PI)) angleToGoal -= 2*PI;
        
-    //###Caclualtes the distance between robot and goal to determine speed
+    //###Caclualtes the magnitude of the AOFWD vector to determine speed
     float velocityToGoal = 0.0;
     if (allowV)
     {
       velocityToGoal = vectorAOFWD.mag();
       //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
-    }
-    else
-    {
-      velocityToGoal = 0;
-    }
+    }    
     
     //###Routine sends new instructions to driverlayer every delta_t millis
     time = millis();  
@@ -522,7 +519,13 @@ void draw()
     {
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      if (allowTX) updateRobot(velocityToGoal, angleToGoal);
+      if (allowTX) 
+      {
+        updateRobot(velocityToGoal, angleToGoal);
+        moveAngle = angleToGoal;
+        moveSpeed = velocityToGoal;
+        updateParticles();
+      }
       old_time = time;
     }
   }
@@ -692,8 +695,8 @@ void PlotRobot()
     break;
   }
 
-  moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
-  moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
+  //moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
+  //moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
   
   //myRobot.move(moveAngle, moveSpeed);
   myRobot.display();
