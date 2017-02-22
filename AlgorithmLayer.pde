@@ -1,3 +1,12 @@
+//Below is a list of comment types
+//    : Old comment type, must be rewritten using new style
+//##  : Comments explaining pieces of code. These comments wont change a lot
+//!!  : Fixes that need to be made to commented pieces of code
+
+
+
+
+
 //All distances are measured and listed in cm's unless specified otherwise
 
 import processing.opengl.*;
@@ -371,9 +380,13 @@ void draw()
     drawTarget();
     myRobot.display();   
     
-    //isInFOW();    
-    //drawPixels();      //Draws the data from the Kinect sensors on the screen    
+    //## Clears any obstacles in the field of view of the kinect sensor
+    //isInFOW();
     
+    //## Draws the data from the Kinect sensors on the screen
+    //drawPixels();          
+    
+    //## Shows the framerate in milli seconds on the top of the screen
     //oldMillis = newMillis;
     //newMillis = millis();
     //textSize(16);  
@@ -382,23 +395,28 @@ void draw()
     //text("frame rate (ms): "+(newMillis - oldMillis),5,5);
     
     
-  
-   
-    allNodes.clear(); //<>//
-    ////###Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
-    ////###  will not be used in path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); //<>//
-    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size()));
-    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));  
+    //## Quad tree functions used to calculate the shortest path to the goal 
+    //## Clears the nodelist in order to start with a clean list
+    allNodes.clear();    //<>//
+    ////!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
+    ////!! will not be used in path planning
+    //## Divides map into quads to be used for path planning
+    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
+    //## Adds a START and GOAL node to the list of nodes used for path finding
+    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
+    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
     
     //oldMillis = millis();
-    //nodeLink();
+    nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
-  
-    //findPath();
-   
+    //## Calculate shortest path using A* and the links created with nodeLink
+    findPath();
+    
+    //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
+    //##  and current state of sensors
     //PlotRobot();
+    //## calcProgressPoint tracks the progress point in order to determine if wall following is over
     //calcProgressPoint();
     
     fill(0,255,0);
@@ -411,7 +429,7 @@ void draw()
     //fill(255,255,0);
     //ellipse(toScreenX(returnVal.x), toScreenY(returnVal.y), 10 * scaleFactor,10 * scaleFactor);  
     
-    //###Displays the node positions on the map
+    //## Displays the node positions on the map
     for (Node n: allNodes)
     {
        n.display();     
