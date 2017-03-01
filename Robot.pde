@@ -91,6 +91,8 @@ class Robot{
         fill(255,0,0);
         ellipse(toScreenX(location.x), toScreenY(location.y), max(1,prob*10), max(1,prob*10));  //Shows a small red dot where the head of the particle is else proportionate to the probability        
         textAlign(CENTER, CENTER);
+        textSize(8);
+        text(str(prob*10),toScreenX(location.x),toScreenY(location.y));
         fill(0);   
         
         //###Display simulated sensor data on screen
