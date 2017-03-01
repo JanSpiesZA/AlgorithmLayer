@@ -312,7 +312,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 115200);  
+  myPort = new Serial(this, Serial.list()[1], 115200);  
   //myPort = new Serial(this, Serial.list()[0], 115200);
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
@@ -436,7 +436,9 @@ void draw()
     }
     
     //int startTime = millis();
-    //myRobot.sense();          //Makes use of sensor class to detect obstacles
+    //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
+    //    distance value
+    //myRobot.sense();          
     
     for (int k = 0; k < maxParticles; k++)
     {
@@ -449,7 +451,7 @@ void draw()
     
     //if (stateVal != 0)
     //{
-      //updateParticles();
+    //updateParticles();
       resample();
     //}
     
@@ -482,7 +484,7 @@ void draw()
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   //text((mouseX)+":"+(mouseY), mouseX, mouseY);
   
-  //###Show NO TX across robot to indicate no serial data is being transmitted to driver layer
+  //## Show NO TX across robot to indicate no serial data is being transmitted to driver layer
   if (!allowTX)
   {
     fill(255,0,0);
