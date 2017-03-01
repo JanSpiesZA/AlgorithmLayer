@@ -148,7 +148,7 @@ float[] closest2 = {0.0, 0.0};
 int stateVal = 0;      //Values used to indicate which state the robot is currently in
 
 boolean showVal = false;
-boolean step = true;
+boolean step = false;
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
 float tileSize = 25;
@@ -367,7 +367,7 @@ void draw()
   
 
   
-  //###Gets serial data from robot driver layer = x,y,heading
+  //###Get serial data from robot driver layer = x,y,heading
   parseSerialData();
 
   if (step)
@@ -378,7 +378,10 @@ void draw()
     
     drawTiles();   
     drawTarget();
-    myRobot.display();   
+    myRobot.display();  
+    
+    
+  
     
     //## Clears any obstacles in the field of view of the kinect sensor
     //isInFOW();
@@ -502,7 +505,7 @@ void draw()
   }
     
   
-    step = true;
+    step = false;
 
     //###Calculates the vector to avoid all obstacles
     //vectorAvoidObstacles = calcVectorAvoidObstacles();
@@ -621,7 +624,7 @@ void isInFOW()
 }
 
 //###############################################################################################
-//Updates each particle accoridng to robot movement
+//Updates each particle according to robot movement
 void updateParticles()
 {
   //Update particle movement
@@ -630,7 +633,14 @@ void updateParticles()
     particles[i].move(moveAngle, moveSpeed);
   }
 
-  //Display updated particles
+  displayParticles();
+}
+
+//###############################################################################################
+//Display particles on the screen
+void displayParticles()
+{
+//Display updated particles
   for (int i=0; i < maxParticles; i++)
   {
     particles[i].display();
@@ -1023,6 +1033,9 @@ void keyPressed()
   }
     
   if (key == ' ') showVal = true;  
+  
+  //## This key will cycle through one complete cycle of the robot code
+  if (key == 'n') step = true;
 
   //Use this key to enable or disable obstacle
   if (key == 'o')
