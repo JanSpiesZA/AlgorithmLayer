@@ -88,7 +88,7 @@ float diameter = 45.0;
 //    localisation moves the robot sprite to its localised location
 PVector robotPosOffset = new PVector (180, 155, 0.0);
 
-final int maxParticles = 10;
+final int maxParticles = 100;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -174,6 +174,9 @@ int delta_t = 500;
 boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
 boolean allowV = false;      //Allows the v movement of the robot
 
+
+//##The AGENT is a 'ghost' robot showing what the actual robot should be doing when travelling towards the goal. This is basically
+//    just used to test attractive and repulsive forces and does not at this stage make use of path planning
 PVector agent = new PVector(10.0, 10.0, 0.0);
 
 int ts = 12;  //textSize value used to display information on the graphical screen
@@ -387,23 +390,24 @@ void draw()
   //##Display robot sprite
   myRobot.display();  
   //##Display all the particles
-  displayParticles();  
+  displayParticles(); 
+  //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
+  updateParticleProb();
   //##Display text on the screen asociated with keys allocated to doing certain functions
-  displayText();
-  
-  
-    
-  //###Get serial data from robot driver layer = x,y,heading
+  displayText();    
+  //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
   parseSerialData();
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
   if (step)
   { 
-    //## Clears any obstacles in the field of view of the kinect sensor
+    //## Clears any obstacles in the field of view of the kinect sensor. No obstacles can be between the robot and the first visible obstacle
+    //    therefore the area in front of the robot up until the first seen obstacle must be obstacle free
     //isInFOW();
     
-    //## Draws the data from the Kinect sensors on the screen
+    //## Draws the data from the Kinect sensors on the screen sing a top down view. The amount of hits coming back from a specific tile should
+    //    determine the weight of the obstacle in that tile. The more hits received the bigger the weight and the more likely that there is an obstacle
     //drawPixels();          
     
     //## Shows the framerate in milli seconds on the top of the screen
@@ -460,11 +464,7 @@ void draw()
     //    distance value
     //myRobot.sense();          
     
-    for (int k = 0; k < maxParticles; k++)
-    {
-      particles[k].sense();
-      particles[k].measureProb();
-    }
+    
     
     //int endTime = millis();
     //println(endTime - startTime);
@@ -472,7 +472,7 @@ void draw()
     //if (stateVal != 0)
     //{
     //updateParticles();
-    //  resample();
+      resample();
     //}
     
     //### Calculates the attractive field for each tile
@@ -662,6 +662,19 @@ void displayParticles()
   {
     particles[i].display();
   }
+}
+
+
+//###############################################################################################
+//Calculates the particles probabilty value based on the virtual sensor data from the particles position in the map
+//    towards the obstacles in the map
+void updateParticleProb()
+{
+  for (int k = 0; k < maxParticles; k++)
+    {
+      particles[k].sense();
+      particles[k].measureProb();
+    }
 }
 
 //###############################################################################################
