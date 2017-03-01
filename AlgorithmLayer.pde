@@ -73,8 +73,11 @@ boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
-//###Offset position of robot in the world map since real robot starts at world coords 0,0 but onscreen it is not 0,0
-PVector robotPosOffset = new PVector (80, 155, 0.0); //imgWidth/2, imgWidth/2, 0.0);
+
+//### Inital position of robot in the world map where 0,0 is the left bottom corner
+//  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
+//    localisation moves the robot sprite to its localised location
+PVector robotPosOffset = new PVector (180, 155, 0.0);
 
 final int maxParticles = 10;
 Robot[] particles = new Robot[maxParticles];
@@ -163,6 +166,8 @@ boolean allowTX = false;    //Allows data to be transmitted to the driverlayer
 boolean allowV = false;      //Allows the v movement of the robot
 
 PVector agent = new PVector(10.0, 10.0, 0.0);
+
+int ts = 12;  //textSize value used to display information on the graphical screen
 
 
 
@@ -363,6 +368,10 @@ void draw()
   }
   
   
+  textSize(ts);
+  textAlign(LEFT);
+  text("Keys used",5,ts);
+  text("Step: <n>",5,2*ts);
   
   
 
