@@ -376,33 +376,30 @@ void draw()
    showVal = false;
   }
   
+  //##Clears screen with solid background colour
+  background (200);            
+  //##draws map as background
+  image(img,toScreenX(0),toScreenY(imgHeight));  
+  //## Draw tiles used to display obstacle
+  drawTiles();   
+  //##Draw the goal of where the robot needs to go on the screen
+  drawTarget();
+  //##Display robot sprite
+  myRobot.display();  
+  //##Display all the particles
+  displayParticles();  
+  //##Display text on the screen asociated with keys allocated to doing certain functions
+  displayText();
   
-  textSize(ts);
-  textAlign(LEFT);
-  text("Keys used",5,ts);
-  text("Step: <n>",5,2*ts);
   
-  displayParticles();
-  
-  
-
-  
+    
   //###Get serial data from robot driver layer = x,y,heading
   parseSerialData();
 
+  //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
+  //    debugging
   if (step)
-  {
-    //imageMode(CENTER);
-    background (200);        //draws map as background    
-    image(img,toScreenX(0),toScreenY(imgHeight));    
-    
-    drawTiles();   
-    drawTarget();
-    myRobot.display();  
-    
-    
-  
-    
+  { 
     //## Clears any obstacles in the field of view of the kinect sensor
     //isInFOW();
     
@@ -897,6 +894,21 @@ void dispVectors()
   //line(myRobot.location.x, myRobot.location.y, myRobot.location.x + vectorBlendedAOGTG.x * 100, myRobot.location.y + vectorBlendedAOGTG.y * 100);
   line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
        toScreenX(int(myRobot.location.x + vectorAOFWD.x)), toScreenY(int(myRobot.location.y + vectorAOFWD.y)));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//This functin displays data on the graphic screen, anders vergeet ek watter knoppies om te gebruik om dinge te laat gebeur
+
+void displayText()
+{
+  String[] textLines = {"Keys Used:","Step: <n>"};
+  
+  textSize(ts);
+  textAlign(LEFT);
+  for (int i = 0; i < textLines.length; i++) 
+  {
+    text(textLines[i],10,i*ts+ts);
+  }
 }
 
 
