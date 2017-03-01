@@ -44,19 +44,28 @@ boolean followPath = true;    //Setting to control if path must be followd or is
 float worldMapScaleX = 0; //3737;      //To be used as the actual distance of the world map x axis, measured in cm
 float worldMapScaleY = 0; //1137;
 
-float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
-float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
+//float worldWidth = worldMapScaleX;    //New variable that should replace worldMapScaleX
+//float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
 String mapName = "blank.png";
 //String mapName = "Huisplan.png";
 //String mapName = "kamer3.png";
-float imgWidth = 780; //1130;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
-float imgHeight = 780; //530;
 
-float viewPortWidth = 800;    //Area that will be displayed on the screen using the same units as worldWidthReal
-float viewPortHeight = 800;
+
+float worldWidth = 780;    //The actual dimensions in the real world represented by this map 
+float worldHeight = 780;
+
+//-- These variables need to be fixed. Remove imgWidth and imgHeight and replace with worldHeight and worldWidth to make more sense
+//-- worldWidth and worldHeitgh is the size covered by the image on the real world
+float imgWidth = worldWidth; //1130;      //Actual dimensions the image represents in same dimensions as worldWidth and worldHeight
+float imgHeight = worldHeight; //530;
+
+//## The viewport is the piece of real world map that will be visible on the screen - If you zoom in the viewport values will decrease
+//      therefore showing a smaller piece of the real world map
+float viewPortWidth = 1800;    //Area that will be displayed on the screen using the same units as worldWidthReal
+float viewPortHeight = 1800;
 
 float graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
 float graphicBoxHeight = 800;
@@ -209,8 +218,8 @@ void setup()
   //### Resize image to image width and height represented by the world
   img.resize(int(imgWidth), int(imgHeight));  
   
-  worldWidth = img.width+viewPortWidth/2;
-  worldHeight = img.height+viewPortHeight/2;  
+  //worldWidth = img.width+viewPortWidth/2;
+ // worldHeight = img.height+viewPortHeight/2;  
   
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight)); 
@@ -224,7 +233,7 @@ void setup()
   if (maxTilesY % 2 != 0) maxTilesY++;
   
   println("img.Width : "+img.width+", img.Height: "+img.height);
-  println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
+  //println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
   println("scaleFactor :"+scaleFactor);
   println(maxTilesX+","+maxTilesY);
   
@@ -287,7 +296,7 @@ void setup()
   for (int i = 0; i < maxParticles; i++)
   {
     particles[i] = new Robot("PARTICLE");
-    particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+    //particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
     particles[i].setNoise(noiseForward, noiseTurn, noiseSense);    //Add noise to newly created particle
 
     for (int k = 0; k < numSensors2; k++)
@@ -372,6 +381,8 @@ void draw()
   textAlign(LEFT);
   text("Keys used",5,ts);
   text("Step: <n>",5,2*ts);
+  
+  displayParticles();
   
   
 
@@ -464,7 +475,7 @@ void draw()
     //if (stateVal != 0)
     //{
     //updateParticles();
-      resample();
+    //  resample();
     //}
     
     //### Calculates the attractive field for each tile
