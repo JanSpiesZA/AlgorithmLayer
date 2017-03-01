@@ -12,7 +12,7 @@ class Robot{
   float noiseSense = 1.0;  
   boolean makingProgress = false;       //Add progress point in order to show if robot is making progress towards goal
   PVector progressPoint = new PVector();  //Holds the coords for the latest progress point of the robot
-  PVector location = new PVector(random(0, screenSizeX), random(0, screenSizeY), random(0, 2*PI));   //Holds the robot x and y pos
+  PVector location = new PVector(random(0, worldWidth), random(0, worldHeight), random(0, 2*PI));   //randomisez x,y and heading positions for robot and particles
  
   ArrayList<Sensor> sensors = new ArrayList<Sensor>();
   
