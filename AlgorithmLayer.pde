@@ -1,3 +1,10 @@
+//## Use the following website to install Kinect drivers for Windows
+//## https://github.com/shiffman/OpenKinect-for-Processing
+
+//## Use the following website and follow instructions to install Kinect libraries for Processing
+//## http://shiffman.net/p5/kinect/
+
+
 //Below is a list of comment types
 //    : Old comment type, must be rewritten using new style
 //##  : Comments explaining pieces of code. These comments wont change a lot
