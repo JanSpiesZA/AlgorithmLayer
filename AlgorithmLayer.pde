@@ -95,7 +95,7 @@ float diameter = 45.0;
 //    localisation moves the robot sprite to its localised location
 PVector robotPosOffset = new PVector (180, 155, 0.0);
 
-final int maxParticles = 100;
+final int maxParticles = 1;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -306,7 +306,7 @@ void setup()
   for (int i = 0; i < maxParticles; i++)
   {
     particles[i] = new Robot("PARTICLE");
-    //particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+    //particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);  //## Move particle to robot position in order to test probability calculations
     particles[i].setNoise(noiseForward, noiseTurn, noiseSense);    //Add noise to newly created particle
 
     for (int k = 0; k < numSensors2; k++)

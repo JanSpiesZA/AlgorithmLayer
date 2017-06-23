@@ -40,7 +40,7 @@ class Sensor
   {  
     PVector returnVal = transRot(sensorXPos, sensorYPos, sensorHAngle, sensorObstacleDist, 0);    //Takes the sensor's x,y and plot it in the global frame
     returnVal = transRot(_refXPos, _refYPos, _refHeading, returnVal.x, returnVal.y);    //Takes the sensor's x,y and plot it in the global frame
-    fill(255);
+    //fill(255);
     stroke(0);
     strokeWeight(1);
     ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 10*scaleFactor,10*scaleFactor);

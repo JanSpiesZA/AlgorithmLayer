@@ -68,7 +68,7 @@ class Robot{
       case "ROBOT":
         stroke(0);
         strokeWeight(1);
-        fill(0,255,0);    
+        fill(0,255,0); 
         ellipse(toScreenX(location.x), toScreenY(location.y), robotDiameter * scaleFactor, robotDiameter * scaleFactor);
         
         //###Displays sensor from ArrayList on robot avatar
@@ -76,6 +76,7 @@ class Robot{
         {
           fill(255,0,0);          
           sensors.get(k).display(location.x,location.y,heading);
+          fill(0,255,0);          //## Set the color used to display the sensor data of the robot
           sensors.get(k).displaySensorData(location.x,location.y,heading);
         }
         
@@ -100,6 +101,7 @@ class Robot{
         {
           fill(255,0,0);          
           sensors.get(k).display(location.x,location.y,heading);
+          fill(255);          //## Set the color used to display the sensor data of the particle
           sensors.get(k).displaySensorData(location.x,location.y,heading);
         }
         break;
