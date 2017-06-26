@@ -60,7 +60,8 @@ void parseSerialData()
       {
         //###Create a substring of inData starting at location 1 in the string
         //###   this removes the very first character from inData
-        inData = inData.substring(1);
+        inData = inData.substring(1);        
+        println(inData);
         list = split(inData, ",");
         for (int cnt = 0; cnt < numSensors2; cnt++)
         {

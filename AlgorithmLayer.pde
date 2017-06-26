@@ -95,7 +95,7 @@ float diameter = 45.0;
 //    localisation moves the robot sprite to its localised location
 PVector robotPosOffset = new PVector (180, 155, 0.0);
 
-final int maxParticles = 1;
+final int maxParticles = 100;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -403,6 +403,7 @@ void draw()
   //##Display text on the screen asociated with keys allocated to doing certain functions
   displayText();    
   //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
+  inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
   parseSerialData();
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
