@@ -56,13 +56,14 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-String mapName = "blank.png";
+//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
 //String mapName = "kamer3.png";
+String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map 
 
 
-float worldWidth = 780;    //The actual dimensions in the real world represented by this map 
-float worldHeight = 780;
+ 
+
 
 //-- These variables need to be fixed. Remove imgWidth and imgHeight and replace with worldHeight and worldWidth to make more sense
 //-- worldWidth and worldHeitgh is the size covered by the image on the real world
@@ -95,7 +96,7 @@ float diameter = 45.0;
 //    localisation moves the robot sprite to its localised location
 PVector robotPosOffset = new PVector (180, 155, 0.0);
 
-final int maxParticles = 100;
+final int maxParticles = 1;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -395,16 +396,16 @@ void draw()
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
   //##Display robot sprite
-  myRobot.display();  
+  //myRobot.display();  
   //##Display all the particles
-  displayParticles(); 
+  //displayParticles(); 
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
-  updateParticleProb();
+  //updateParticleProb();
   //##Display text on the screen asociated with keys allocated to doing certain functions
-  displayText();    
+  //displayText();    
   //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
   inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
-  parseSerialData();
+  //parseSerialData();
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
