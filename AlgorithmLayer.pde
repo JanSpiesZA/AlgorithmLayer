@@ -72,8 +72,8 @@ float imgHeight = worldHeight; //530;
 
 //## The viewport is the piece of real world map that will be visible on the screen - If you zoom in the viewport values will decrease
 //      therefore showing a smaller piece of the real world map
-float viewPortWidth = 1800;    //Area that will be displayed on the screen using the same units as worldWidthReal
-float viewPortHeight = 1800;
+float viewPortWidth = worldWidth; //1800;    //Area that will be displayed on the screen using the same units as worldWidthReal
+float viewPortHeight = worldHeight; //1800;
 
 float graphicBoxWidth = 800;    //Pixel size of actual screen real estate which will display the viewPort data
 float graphicBoxHeight = 800;
@@ -82,7 +82,7 @@ float screenSizeX = graphicBoxWidth;
 float screenSizeY = graphicBoxHeight; //screenSizeX * (worldMapScaleY/worldMapScaleX);  //Scale the y size according to ratio between worldMapScaleX an Y
 
 float vpX = 0.0; //The x-coord of the top left corner of the viewPort
-float vpY = 0.0; //The y-coord of the top left corner of the viewPort
+float vpY = worldHeight; //The y-coord of the top left corner of the viewPort
 
 float scaleFactor = 0.0;
 
@@ -196,8 +196,8 @@ void setup()
   //###Calculates cale factor used to scale all screen avatars/objects
   scaleFactor = graphicBoxWidth / viewPortWidth;
   //### Set viewpoint x and y so that robot is in the middle of the viewPort with startup
-  vpX = robotPosOffset.x - viewPortWidth / 2.0;
-  vpY = robotPosOffset.y + viewPortHeight / 2.0;
+  //vpX = robotPosOffset.x - viewPortWidth / 2.0;
+  //vpY = robotPosOffset.y + viewPortHeight / 2.0;
   
   kinect = new Kinect(this);
   kinect.initDepth();
@@ -337,7 +337,7 @@ void setup()
   //}
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[1], 115200);  
+  myPort = new Serial(this, Serial.list()[0], 115200);  
   //myPort = new Serial(this, Serial.list()[0], 115200);
   delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
   myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
