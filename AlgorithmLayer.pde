@@ -10,9 +10,10 @@
 //##  : Comments explaining pieces of code. These comments wont change a lot
 //!!  : Fixes that need to be made to commented pieces of code
 
-
-
-
+//##When true the robot does not access any serial ports and uses location and sensor data from the simulation
+boolean simMode = true;
+boolean showVal = false;
+boolean step = true;
 
 //All distances are measured and listed in cm's unless specified otherwise
 
@@ -167,8 +168,7 @@ float[] closest2 = {0.0, 0.0};
 
 int stateVal = 0;      //Values used to indicate which state the robot is currently in
 
-boolean showVal = false;
-boolean step = false;
+
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
 float tileSize = 25;
@@ -188,6 +188,8 @@ boolean allowV = false;      //Allows the v movement of the robot
 PVector agent = new PVector(10.0, 10.0, 0.0);
 
 int ts = 12;  //textSize value used to display information on the graphical screen
+
+String frameText;    //## String used to change what is displayed in the simulation frame
 
 
 
@@ -317,7 +319,7 @@ void setup()
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  //size(100,100,OPENGL);
+  //size(100,100,FX2D);
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
@@ -336,21 +338,30 @@ void setup()
   //  }
   //}
   
-  printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 115200);  
-  //myPort = new Serial(this, Serial.list()[0], 115200);
-  delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
-  myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
-  delay(500);
-  myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
-  delay(500);  
   
-  myPort.clear();
-  // Throw out the first reading, in case we started reading 
-  // in the middle of a string from the sender.
-  inData = myPort.readStringUntil(lf);
-  inData = null;
-  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
+  //##Disable serial port initialisation when in Simulation Mode
+  if (!simMode)
+  {
+    printArray(Serial.list());
+    myPort = new Serial(this, Serial.list()[0], 115200);  
+    //myPort = new Serial(this, Serial.list()[0], 115200);
+    delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
+    myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
+    delay(500);
+    myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
+    delay(500);  
+    
+    myPort.clear();
+    // Throw out the first reading, in case we started reading 
+    // in the middle of a string from the sender.
+    inData = myPort.readStringUntil(lf);
+    inData = null;
+    myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+  }
+  else
+  {
+    print("Simulation MODE");
+  }
   
   //obstacleS = 1.414 * tileSize;
   obstacleS = 50.0;    //##Includes the safety distance from the wall - robot x,y plus min distance from wall
@@ -365,8 +376,17 @@ void setup()
 
 
 void draw()
-{ 
-  surface.setTitle(int(frameRate)+" fps");        //Add framerate into title bar
+{   
+  if (simMode)
+  {
+    frameText = int(frameRate)+" fps   -   SIMULATION MODE"; 
+  }
+  else
+  {
+    frameText = int(frameRate)+" fps";
+  }  
+  surface.setTitle(frameText);
+  
   
   if (showVal)
   {
@@ -396,55 +416,61 @@ void draw()
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
   //##Display robot sprite
-  //myRobot.display();  
+  myRobot.display();  
   //##Display all the particles
   //displayParticles(); 
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
   //updateParticleProb();
   //##Display text on the screen asociated with keys allocated to doing certain functions
-  //displayText();    
+  //displayText();   
   //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
-  inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
-  //parseSerialData();
+  if (!simMode)
+  {
+    inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //parseSerialData();
+  }
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
-  if (step)
+  if (!step)
   { 
-    //## Clears any obstacles in the field of view of the kinect sensor. No obstacles can be between the robot and the first visible obstacle
-    //    therefore the area in front of the robot up until the first seen obstacle must be obstacle free
-    //isInFOW();
-    
-    //## Draws the data from the Kinect sensors on the screen sing a top down view. The amount of hits coming back from a specific tile should
-    //    determine the weight of the obstacle in that tile. The more hits received the bigger the weight and the more likely that there is an obstacle
-    //drawPixels();          
+    if(!simMode)
+    {
+      //## Clears any obstacles in the field of view of the kinect sensor. No obstacles can be between the robot and the first visible obstacle
+      //    therefore the area in front of the robot up until the first seen obstacle must be obstacle free
+      //isInFOW();
+      
+      //## Draws the data from the Kinect sensors on the screen sing a top down view. The amount of hits coming back from a specific tile should
+      //    determine the weight of the obstacle in that tile. The more hits received the bigger the weight and the more likely that there is an obstacle
+      //drawPixels();
+    }
     
     //## Shows the framerate in milli seconds on the top of the screen
-    //oldMillis = newMillis;
-    //newMillis = millis();
-    //textSize(16);  
-    //textAlign(LEFT, TOP);
-    //fill(0);
-    //text("frame rate (ms): "+(newMillis - oldMillis),5,5);
+    oldMillis = newMillis;
+    newMillis = millis();
+    textSize(16);  
+    textAlign(LEFT, TOP);
+    fill(0);
+    text("frame rate (ms): "+(newMillis - oldMillis),5,5);
     
     
     //## Quad tree functions used to calculate the shortest path to the goal 
     //## Clears the nodelist in order to start with a clean list
-    allNodes.clear();    //<>//
+    //allNodes.clear();    //<>//
     ////!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////!! will not be used in path planning
     //## Divides map into quads to be used for path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
     //## Adds a START and GOAL node to the list of nodes used for path finding
-    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
-    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
+    //allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
+    //allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
     
     //oldMillis = millis();
-    nodeLink();  //Links all the nodes together in order to determine shortest path
+    //nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
     //## Calculate shortest path using A* and the links created with nodeLink
-    findPath();
+    //findPath();
     
     //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
     //##  and current state of sensors
@@ -481,7 +507,7 @@ void draw()
     //if (stateVal != 0)
     //{
     //updateParticles();
-      resample();
+    //  resample();
     //}
     
     //### Calculates the attractive field for each tile
@@ -514,20 +540,23 @@ void draw()
   //text((mouseX)+":"+(mouseY), mouseX, mouseY);
   
   //## Show NO TX across robot to indicate no serial data is being transmitted to driver layer
-  if (!allowTX)
+  if (!simMode)
   {
-    fill(255,0,0);
-    textSize(40);
-    textAlign(CENTER, BOTTOM);
-    text("NO TX", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
-  }
-  
-  if (!allowV)
-  {
-    fill(255,0,0);
-    textSize(40);
-    textAlign(CENTER, TOP);
-    text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+    if (!allowTX)
+    {
+      fill(255,0,0);
+      textSize(40);
+      textAlign(CENTER, BOTTOM);
+      text("NO TX", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+    }
+    
+    if (!allowV)
+    {
+      fill(255,0,0);
+      textSize(40);
+      textAlign(CENTER, TOP);
+      text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+    }
   }
     
   
@@ -564,20 +593,23 @@ void draw()
     }    
     
     //###Routine sends new instructions to driverlayer every delta_t millis
-    time = millis();  
-    int interval = time - old_time;
-    if (interval > delta_t)
+    if(!simMode)
     {
-      //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
-      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      if (allowTX) 
+      time = millis();  
+      int interval = time - old_time;
+      if (interval > delta_t)
       {
-        updateRobot(velocityToGoal, angleToGoal);
-        moveAngle = angleToGoal;
-        moveSpeed = velocityToGoal;
-        updateParticles();
+        //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
+        println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+        if (allowTX) 
+        {
+          updateRobot(velocityToGoal, angleToGoal);
+          moveAngle = angleToGoal;
+          moveSpeed = velocityToGoal;
+          updateParticles();
+        }
+        old_time = time;
       }
-      old_time = time;
     }
   }
   dispVectors();      //Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc  
