@@ -200,9 +200,12 @@ void setup()
   //vpX = robotPosOffset.x - viewPortWidth / 2.0;
   //vpY = robotPosOffset.y + viewPortHeight / 2.0;
   
-  kinect = new Kinect(this);
-  kinect.initDepth();
-  kinectTilt = kinect.getTilt();
+  if(!simMode)
+  {
+    kinect = new Kinect(this);
+    kinect.initDepth();
+    kinectTilt = kinect.getTilt();
+  }
   
   // Lookup table for all possible depth values (0 - 2047)
   for (int i = 0; i < depthLookUp.length; i++) 
