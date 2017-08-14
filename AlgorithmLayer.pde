@@ -10,9 +10,11 @@
 //##  : Comments explaining pieces of code. These comments wont change a lot
 //!!  : Fixes that need to be made to commented pieces of code
 
-
-
-
+//##When true the robot does not access any serial ports and uses location and sensor data from the simulation
+boolean simMode = true;
+boolean showVal = false;
+boolean step = true;
+boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
 
 //All distances are measured and listed in cm's unless specified otherwise
 
@@ -45,8 +47,6 @@ float infinity = 1000.0;
 
 PImage img;
 
-boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
-
 //Actual distance of measured on ground, measured in cm's
 float worldMapScaleX = 0; //3737;      //To be used as the actual distance of the world map x axis, measured in cm
 float worldMapScaleY = 0; //1137;
@@ -56,10 +56,10 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
 //String mapName = "kamer3.png";
-String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map 
+//String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map 
 
 
  
@@ -167,8 +167,7 @@ float[] closest2 = {0.0, 0.0};
 
 int stateVal = 0;      //Values used to indicate which state the robot is currently in
 
-boolean showVal = false;
-boolean step = false;
+
 
 //Measurement of tiles to be used for occupancy grid in cm's scaled to represented size in real world
 float tileSize = 25;
@@ -189,6 +188,8 @@ PVector agent = new PVector(10.0, 10.0, 0.0);
 
 int ts = 12;  //textSize value used to display information on the graphical screen
 
+String frameText;    //## String used to change what is displayed in the simulation frame
+
 
 
 void setup()
@@ -199,9 +200,12 @@ void setup()
   //vpX = robotPosOffset.x - viewPortWidth / 2.0;
   //vpY = robotPosOffset.y + viewPortHeight / 2.0;
   
-  kinect = new Kinect(this);
-  kinect.initDepth();
-  kinectTilt = kinect.getTilt();
+  if(!simMode)
+  {
+    kinect = new Kinect(this);
+    kinect.initDepth();
+    kinectTilt = kinect.getTilt();
+  }
   
   // Lookup table for all possible depth values (0 - 2047)
   for (int i = 0; i < depthLookUp.length; i++) 
@@ -317,7 +321,7 @@ void setup()
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  //size(100,100,OPENGL);
+  //size(100,100,FX2D);
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
@@ -336,21 +340,30 @@ void setup()
   //  }
   //}
   
-  printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 115200);  
-  //myPort = new Serial(this, Serial.list()[0], 115200);
-  delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
-  myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
-  delay(500);
-  myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
-  delay(500);  
   
-  myPort.clear();
-  // Throw out the first reading, in case we started reading 
-  // in the middle of a string from the sender.
-  inData = myPort.readStringUntil(lf);
-  inData = null;
-  myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer  
+  //##Disable serial port initialisation when in Simulation Mode
+  if (!simMode)
+  {
+    printArray(Serial.list());
+    myPort = new Serial(this, Serial.list()[0], 115200);  
+    //myPort = new Serial(this, Serial.list()[0], 115200);
+    delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
+    myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
+    delay(500);
+    myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
+    delay(500);  
+    
+    myPort.clear();
+    // Throw out the first reading, in case we started reading 
+    // in the middle of a string from the sender.
+    inData = myPort.readStringUntil(lf);
+    inData = null;
+    myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+  }
+  else
+  {
+    print("Simulation MODE");
+  }
   
   //obstacleS = 1.414 * tileSize;
   obstacleS = 50.0;    //##Includes the safety distance from the wall - robot x,y plus min distance from wall
@@ -365,8 +378,17 @@ void setup()
 
 
 void draw()
-{ 
-  surface.setTitle(int(frameRate)+" fps");        //Add framerate into title bar
+{   
+  if (simMode)
+  {
+    frameText = int(frameRate)+" fps   -   SIMULATION MODE"; 
+  }
+  else
+  {
+    frameText = int(frameRate)+" fps";
+  }  
+  surface.setTitle(frameText);
+  
   
   if (showVal)
   {
@@ -396,28 +418,173 @@ void draw()
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
   //##Display robot sprite
-  //myRobot.display();  
+  myRobot.display();  
   //##Display all the particles
   //displayParticles(); 
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
   //updateParticleProb();
   //##Display text on the screen asociated with keys allocated to doing certain functions
-  //displayText();    
-  //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
-  inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
-  //parseSerialData();
+  //displayText();   
+  
+  //## Quad tree functions used to calculate the shortest path to the goal 
+  //## Clears the nodelist in order to start with a clean list
+  allNodes.clear();   
+  //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
+  //!! will not be used in path planning
+  //## Divides map into quads to be used for path planning
+  doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
+  //## Adds a START and GOAL node to the list of nodes used for path finding
+  allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
+  allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
+  
+  //## Displays the node positions on the map
+  for (Node n: allNodes)
+  {
+     n.display();     
+  }
+  
+  //oldMillis = millis();
+  //!! Code must change to only do nodelink when new obstacles are detected and a new quad tree is created
+  nodeLink();  //Links all the nodes together in order to determine shortest path
+  //time = millis() - oldMillis;
+  //println("Node Link time: "+time);
+  
+  //## Calculate shortest path using A* and the links created with nodeLink
+  findPath();
+  
+  //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
+  //##  and current state of sensors
+  PlotRobot();
+  //## calcProgressPoint tracks the progress point in order to determine if wall following is over
+  //calcProgressPoint();
+  
+  //### Draws cartesian axis on the screen  
+  strokeWeight(2);
+  stroke(0,255,0);
+  line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
+  line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
+  
+  //### Calculates the attractive field for each tile
+  //for (int k = 0; k < maxTilesX; k++)
+  //{
+  //  for (int l = 0; l < maxTilesY; l++)
+  //  {
+  //    if (tile[k][l].tileType == "UNASSIGNED")
+  //    {
+  //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+  //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+  //    }
+  //  }
+  //}
+  
+  //## Displays mouse X and Y values in World Coords
+  fill(0);  
+  textSize(10);
+  textAlign(CENTER,BOTTOM);  
+  text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
+  
+  //###Caclualtes the magnitude of the AOFWD vector to determine speed
+  float velocityToGoal = 0.0;
+  if (allowV)
+  {
+    velocityToGoal = vectorAOFWD.mag();
+    //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
+  }  
+  
+  //###Calculates the vector to the next waypoint / Go To Goal vector
+  vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
+  vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;  
+  vectorGoToGoal.normalize();
+  vectorGoToGoal.mult(100);
+  println("Next waypoint: " +nextWaypoint);
+  
+  float angleToGoal = atan2(vectorGoToGoal.y,vectorGoToGoal.x) - myRobot.heading;        
+  if (angleToGoal < (-PI)) angleToGoal += 2*PI;
+  if (angleToGoal > (PI)) angleToGoal -= 2*PI; 
+  
+  
+  //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
+  dispVectors();  
+    
+  if (simMode)
+  {
+    //## Shows the framerate in milli seconds on the top of the screen
+    oldMillis = newMillis;
+    newMillis = millis();
+    textSize(16);  
+    textAlign(LEFT, TOP);
+    fill(0);
+    text("frame rate (ms): "+(newMillis - oldMillis),5,5);
+    
+    //int startTime = millis();
+    //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
+    //##  distance value
+    myRobot.sense();   
+    //int endTime = millis();
+    //println("Sense Time: " + (endTime - startTime));
+    //myRobot.move(angleToGoal,0.5);
+    
+  }
+  else
+  {
+    //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
+    inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //parseSerialData();
+    
+    fill(0,255,0);
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
+    agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
+    agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
+    
+    //## Show NO TX across robot to indicate no serial data is being transmitted to driver layer    
+    if (!allowTX)
+    {
+      fill(255,0,0);
+      textSize(40);
+      textAlign(CENTER, BOTTOM);
+      text("NO TX", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+    }
+    
+    if (!allowV)
+    {
+      fill(255,0,0);
+      textSize(40);
+      textAlign(CENTER, TOP);
+      text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+    }    
+    
+    //###Routine sends new instructions to driverlayer every delta_t millis
+    time = millis();  
+    int interval = time - old_time;
+    if (interval > delta_t)
+    {
+      //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
+      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      if (allowTX) 
+      {
+        updateRobot(velocityToGoal, angleToGoal);
+        moveAngle = angleToGoal;
+        moveSpeed = velocityToGoal;
+        updateParticles();
+      }
+      old_time = time;
+    }    
+  }
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
-  if (step)
+  if (!step)
   { 
-    //## Clears any obstacles in the field of view of the kinect sensor. No obstacles can be between the robot and the first visible obstacle
-    //    therefore the area in front of the robot up until the first seen obstacle must be obstacle free
-    //isInFOW();
-    
-    //## Draws the data from the Kinect sensors on the screen sing a top down view. The amount of hits coming back from a specific tile should
-    //    determine the weight of the obstacle in that tile. The more hits received the bigger the weight and the more likely that there is an obstacle
-    //drawPixels();          
+    if(!simMode)
+    {
+      //## Clears any obstacles in the field of view of the kinect sensor. No obstacles can be between the robot and the first visible obstacle
+      //    therefore the area in front of the robot up until the first seen obstacle must be obstacle free
+      //isInFOW();
+      
+      //## Draws the data from the Kinect sensors on the screen sing a top down view. The amount of hits coming back from a specific tile should
+      //    determine the weight of the obstacle in that tile. The more hits received the bigger the weight and the more likely that there is an obstacle
+      //drawPixels();
+    }
     
     //## Shows the framerate in milli seconds on the top of the screen
     //oldMillis = newMillis;
@@ -430,21 +597,22 @@ void draw()
     
     //## Quad tree functions used to calculate the shortest path to the goal 
     //## Clears the nodelist in order to start with a clean list
-    allNodes.clear();    //<>//
+    //allNodes.clear();    //<>//
     ////!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////!! will not be used in path planning
     //## Divides map into quads to be used for path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
     //## Adds a START and GOAL node to the list of nodes used for path finding
-    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
-    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
+    //allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
+    //allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
     
     //oldMillis = millis();
-    nodeLink();  //Links all the nodes together in order to determine shortest path
+    //nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
+    
     //## Calculate shortest path using A* and the links created with nodeLink
-    findPath();
+    //findPath();
     
     //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
     //##  and current state of sensors
@@ -452,21 +620,21 @@ void draw()
     //## calcProgressPoint tracks the progress point in order to determine if wall following is over
     //calcProgressPoint();
     
-    fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
-    agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
-    agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
+    //fill(0,255,0);
+    //ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
+    //agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
+    //agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
     //###Draws an ellipse at the centerpoint of the kinect's position on the robot
     //PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
     //fill(255,255,0);
     //ellipse(toScreenX(returnVal.x), toScreenY(returnVal.y), 10 * scaleFactor,10 * scaleFactor);  
     
-    //## Displays the node positions on the map
-    for (Node n: allNodes)
-    {
-       n.display();     
-    }
+    ////## Displays the node positions on the map
+    //for (Node n: allNodes)
+    //{
+    //   n.display();     
+    //}
     
     //int startTime = millis();
     //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
@@ -481,54 +649,57 @@ void draw()
     //if (stateVal != 0)
     //{
     //updateParticles();
-      resample();
+    //  resample();
     //}
     
-    //### Calculates the attractive field for each tile
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }
+    ////### Calculates the attractive field for each tile
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
     
-  //### Draws cartesian axis on the screen  
-  strokeWeight(2);
-  stroke(0,255,0);
-  line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
-  line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
+  ////### Draws cartesian axis on the screen  
+  //strokeWeight(2);
+  //stroke(0,255,0);
+  //line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
+  //line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
   
-  //### Displays mouse X and Y values in World Coords
-  fill(0);
-  //int tileX = floor(toWorldX(mouseX) / tileSize + (maxTilesX) / 2.0);
-  //int tileY = floor(toWorldY(mouseY) / tileSize + (maxTilesY) / 2.0);
-  textSize(10);
-  textAlign(CENTER,BOTTOM);
-  //text(tileX+":"+tileY, mouseX, mouseY);
-  text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
-  //text((mouseX)+":"+(mouseY), mouseX, mouseY);
+  ////### Displays mouse X and Y values in World Coords
+  //fill(0);
+  ////int tileX = floor(toWorldX(mouseX) / tileSize + (maxTilesX) / 2.0);
+  ////int tileY = floor(toWorldY(mouseY) / tileSize + (maxTilesY) / 2.0);
+  //textSize(10);
+  //textAlign(CENTER,BOTTOM);
+  ////text(tileX+":"+tileY, mouseX, mouseY);
+  //text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
+  ////text((mouseX)+":"+(mouseY), mouseX, mouseY);
   
-  //## Show NO TX across robot to indicate no serial data is being transmitted to driver layer
-  if (!allowTX)
-  {
-    fill(255,0,0);
-    textSize(40);
-    textAlign(CENTER, BOTTOM);
-    text("NO TX", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
-  }
-  
-  if (!allowV)
-  {
-    fill(255,0,0);
-    textSize(40);
-    textAlign(CENTER, TOP);
-    text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
-  }
+  ////## Show NO TX across robot to indicate no serial data is being transmitted to driver layer
+  //if (!simMode)
+  //{
+  //  if (!allowTX)
+  //  {
+  //    fill(255,0,0);
+  //    textSize(40);
+  //    textAlign(CENTER, BOTTOM);
+  //    text("NO TX", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+  //  }
+    
+  //  if (!allowV)
+  //  {
+  //    fill(255,0,0);
+  //    textSize(40);
+  //    textAlign(CENTER, TOP);
+  //    text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+  //  }
+  //}
     
   
     step = false;
@@ -551,36 +722,39 @@ void draw()
     
     
     //###Calcualtes the angle in which the robot needs to travel   
-    float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
-    if (angleToGoal < (-PI)) angleToGoal += 2*PI;
-    if (angleToGoal > (PI)) angleToGoal -= 2*PI;
+    //float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
+    //if (angleToGoal < (-PI)) angleToGoal += 2*PI;
+    //if (angleToGoal > (PI)) angleToGoal -= 2*PI;
        
-    //###Caclualtes the magnitude of the AOFWD vector to determine speed
-    float velocityToGoal = 0.0;
-    if (allowV)
-    {
-      velocityToGoal = vectorAOFWD.mag();
-      //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
-    }    
+    ////###Caclualtes the magnitude of the AOFWD vector to determine speed
+    //float velocityToGoal = 0.0;
+    //if (allowV)
+    //{
+    //  velocityToGoal = vectorAOFWD.mag();
+    //  //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
+    //}    
     
-    //###Routine sends new instructions to driverlayer every delta_t millis
-    time = millis();  
-    int interval = time - old_time;
-    if (interval > delta_t)
-    {
-      //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
-      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
-      if (allowTX) 
-      {
-        updateRobot(velocityToGoal, angleToGoal);
-        moveAngle = angleToGoal;
-        moveSpeed = velocityToGoal;
-        updateParticles();
-      }
-      old_time = time;
-    }
+    ////###Routine sends new instructions to driverlayer every delta_t millis
+    //if(!simMode)
+    //{
+    //  time = millis();  
+    //  int interval = time - old_time;
+    //  if (interval > delta_t)
+    //  {
+    //    //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
+    //    println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+    //    if (allowTX) 
+    //    {
+    //      updateRobot(velocityToGoal, angleToGoal);
+    //      moveAngle = angleToGoal;
+    //      moveSpeed = velocityToGoal;
+    //      updateParticles();
+    //    }
+    //    old_time = time;
+    //  }
+    //}
   }
-  dispVectors();      //Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc  
+  //dispVectors();      //Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -738,9 +912,9 @@ void PlotRobot()
         strokeWeight(0);
         fill(0,0,255);
         ellipse (toScreenX(int(nextWaypoint.x)), toScreenY(int(nextWaypoint.y)), 20,20);      
-        //phi_GTG = calcGoalAngle(nextWayPointX - myRobot.location.x, nextWayPointY - myRobot.location.y);
+        phi_GTG = calcGoalAngle(nextWaypoint.x - myRobot.location.x, nextWaypoint.y - myRobot.location.y);
       }
-      //calcErrorAngle(phi_GTG);
+      calcErrorAngle(phi_GTG);
     }
 
     if ((!myRobot.makingProgress) && (myRobot.collisionFlag))
@@ -766,10 +940,13 @@ void PlotRobot()
     break;
   }
 
-  //moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
-  //moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
-  
-  //myRobot.move(moveAngle, moveSpeed);
+  //## when in simulation mode, the robot is updated by simulated data
+  if(simMode)
+  {
+    moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
+    moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
+    myRobot.move(moveAngle, moveSpeed);
+  }
   myRobot.display();
 }
 
