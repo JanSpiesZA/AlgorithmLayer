@@ -247,12 +247,31 @@ void setup()
   maxTilesX = ceil((float(img.width)/(tileSize)));
   maxTilesY = ceil((float(img.height)/(tileSize)));
   
+  //## Calculates the smallest binary value that can be used to calculate the tilesize with
+  int xx = 0;
+  while (int(pow(2,xx)) < int(maxTilesX))
+  { 
+    xx++;    
+  }   //<>//
+  
+  int yy = 0;
+  while (int(pow(2,yy)) < int(maxTilesY))
+  { 
+    yy++;    
+  }
+  tileSize = img.width/pow(2,xx); 
+  
+  //##Calculates the number of tiles in X and in Y //<>//
+  maxTilesX = ceil((float(img.width)/(tileSize)));
+  maxTilesY = ceil((float(img.height)/(tileSize)));
+  
+  //!!!!! Not neccessary since the number of tiles are calculated as a power of 2   
   //### Make sure the amount of tiles is ALWAYS an even number
   //###  Currently the quad tree process divides the number of tiles to create the quads and wont work correctly if maxTiles is odd
-  if (maxTilesX % 2 != 0) maxTilesX++;
-  if (maxTilesY % 2 != 0) maxTilesY++;
+  //if (maxTilesX % 2 != 0) maxTilesX++;
+  //if (maxTilesY % 2 != 0) maxTilesY++;
   
-  println("img.Width : "+img.width+", img.Height: "+img.height); //<>//
+  println("img.Width : "+img.width+", img.Height: "+img.height);
   //println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
   println("scaleFactor :"+scaleFactor);
   println(maxTilesX+","+maxTilesY);
@@ -261,7 +280,7 @@ void setup()
   
   //### Calculates strating coords for tiles to ensure the 4 center tiles have their corners touching
   //###  in the middle of the screen 
-  //float _startX = img.width/2.0 - tileSize/2.0 - tileSize*(maxTilesX/2.0 - 1); // -(tileSize * (maxTilesX - 1) / 2); //<>//
+  //float _startX = img.width/2.0 - tileSize/2.0 - tileSize*(maxTilesX/2.0 - 1); // -(tileSize * (maxTilesX - 1) / 2);
   //float _startY = img.height/2.0 - tileSize/2.0 - tileSize*(maxTilesY/2.0 - 1);
   
   //## Set the starting position of the tiles so tiles will start in the bottom left corner of the map
@@ -578,11 +597,11 @@ void draw()
         moveSpeed = velocityToGoal;
         updateParticles();
       }
-      old_time = time;
+      old_time = time; //<>//
     }    
   }
 
-  //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
+  //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or //<>//
   //    debugging
   if (!step)
   { 
@@ -597,11 +616,11 @@ void draw()
       //drawPixels();
     }
     
-    //## Shows the framerate in milli seconds on the top of the screen //<>//
+    //## Shows the framerate in milli seconds on the top of the screen
     //oldMillis = newMillis;
     //newMillis = millis();
     //textSize(16);  
-    //textAlign(LEFT, TOP); //<>//
+    //textAlign(LEFT, TOP);
     //fill(0);
     //text("frame rate (ms): "+(newMillis - oldMillis),5,5);
     
