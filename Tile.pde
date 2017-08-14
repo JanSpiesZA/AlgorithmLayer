@@ -96,15 +96,17 @@ class Tile
     //textSize(10);
     //fill(0);      
     //text(int(tilePos.x)+":"+int(tilePos.y), toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)));
+    
+    //drawTileForce();
   }
 
 
   void drawTileForce()
   {
     //###Draws a flowfield indicator
-    //strokeWeight(0);
-    //stroke(0);
-    //ellipse(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), 1, 1);
-    //line (toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), toScreenX(int(tilePos.x + field.x)), toScreenY(int(tilePos.y + field.y)));    
+    strokeWeight(0);
+    stroke(0);
+    ellipse(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), 1, 1);
+    line (toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), toScreenX(int(tilePos.x + field.x)), toScreenY(int(tilePos.y + field.y)));    
   }
 }

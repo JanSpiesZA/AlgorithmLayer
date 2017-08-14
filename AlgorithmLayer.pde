@@ -56,9 +56,9 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-//String mapName = "kamer3.png";
+String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map 
 
 
@@ -96,7 +96,7 @@ float diameter = 45.0;
 //    localisation moves the robot sprite to its localised location
 PVector robotPosOffset = new PVector (180, 155, 0.0);
 
-final int maxParticles = 1;
+final int maxParticles = 0;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -220,7 +220,7 @@ void setup()
   //Initialise Robot
   myRobot = new Robot("ROBOT", diameter);        //Create a new robot object
   //myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
-  myRobot.set(0,imgHeight/2,robotPosOffset.z);
+  myRobot.set(imgWidth/2,imgHeight/2,robotPosOffset.z);
 
   //Add sensors to the robot object
   for (int k=0; k<numSensors2; k++)
@@ -356,19 +356,20 @@ void setup()
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
   //Change particle x and y values to prevent them from being inside walls
-  //for (int i=0; i < maxParticles; i++)
-  //{
-  //  color col = img.get (int(particles[i].x) ,int(particles[i].y));    //Test pixel colour to determine if there is an obstacle
+  for (int i=0; i < maxParticles; i++)
+  {
+        
+  //  color col = img.get (int(particles[i].location.x) ,int(particles[i].location.y));    //Test pixel colour to determine if there is an obstacle
   //  if (red(col) == 0)
   //  {
   //    while(red(col) == 0)
   //    {
-  //      particles[i].x = random (0, screenSizeX);
-  //      particles[i].y = random (0, screenSizeY);
-  //      col = img.get (int(particles[i].x) ,int(particles[i].y));    //Test pixel colour to determine if there is an obstacle
+  //      particles[i].location.x = random (0, screenSizeX);
+  //      particles[i].location.y = random (0, screenSizeY);
+  //      col = img.get (int(particles[i].location.x) ,int(particles[i].location.y));    //Test pixel colour to determine if there is an obstacle
   //    }
   //  }
-  //}
+  }
   
   
   //##Disable serial port initialisation when in Simulation Mode
@@ -450,9 +451,11 @@ void draw()
   //##Display robot sprite
   myRobot.display();  
   //##Display all the particles
-  //displayParticles(); 
+  //displayParticles();
+  updateParticles();
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
-  //updateParticleProb();
+  updateParticleProb();
+  resample();
   //##Display text on the screen asociated with keys allocated to doing certain functions
   //displayText();   
   
@@ -495,17 +498,17 @@ void draw()
   line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
   
   //### Calculates the attractive field for each tile
-  //for (int k = 0; k < maxTilesX; k++)
-  //{
-  //  for (int l = 0; l < maxTilesY; l++)
-  //  {
-  //    if (tile[k][l].tileType == "UNASSIGNED")
-  //    {
-  //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-  //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-  //    }
-  //  }
-  //}
+  for (int k = 0; k < maxTilesX; k++)
+  {
+    for (int l = 0; l < maxTilesY; l++)
+    {
+      if (tile[k][l].tileType == "UNASSIGNED")
+      {
+        tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+        tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+      }
+    }
+  }  
   
   //## Displays mouse X and Y values in World Coords
   fill(0);  
@@ -514,27 +517,39 @@ void draw()
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   
   //###Caclualtes the magnitude of the AOFWD vector to determine speed
-  float velocityToGoal = 0.0;
-  if (allowV)
-  {
-    velocityToGoal = vectorAOFWD.mag();
-    //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
-  }  
+  //float velocityToGoal = 0.0;
+  //if (allowV)
+  //{
+  //  velocityToGoal = vectorAOFWD.mag();
+  //  //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
+  //}  
   
   //###Calculates the vector to the next waypoint / Go To Goal vector
-  vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
-  vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;  
-  vectorGoToGoal.normalize();
-  vectorGoToGoal.mult(100);
-  println("Next waypoint: " +nextWaypoint);
+  //vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
+  //vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;  
+  //vectorGoToGoal.normalize();
+  //vectorGoToGoal.mult(100);
+  //println("Next waypoint: " +nextWaypoint);
   
-  float angleToGoal = atan2(vectorGoToGoal.y,vectorGoToGoal.x) - myRobot.heading;        
+  //float angleToGoal = atan2(vectorGoToGoal.y,vectorGoToGoal.x) - myRobot.heading;        
+  //if (angleToGoal < (-PI)) angleToGoal += 2*PI;
+  //if (angleToGoal > (PI)) angleToGoal -= 2*PI; 
+  
+  vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
+  vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
+    
+    
+  //###Calcualtes the angle in which the robot needs to travel   
+  float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
   if (angleToGoal < (-PI)) angleToGoal += 2*PI;
-  if (angleToGoal > (PI)) angleToGoal -= 2*PI; 
-  
+  if (angleToGoal > (PI)) angleToGoal -= 2*PI;
+     
+  //###Caclualtes the magnitude of the AOFWD vector to determine speed
+  float velocityToGoal = 0.0;  
+  velocityToGoal = vectorAOFWD.mag();
   
   //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
-  dispVectors();  
+  //dispVectors();  
     
   if (simMode)
   {
@@ -582,11 +597,11 @@ void draw()
       textAlign(CENTER, TOP);
       text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
     }    
-    
+     //<>//
     //###Routine sends new instructions to driverlayer every delta_t millis
     time = millis();  
     int interval = time - old_time;
-    if (interval > delta_t)
+    if (interval > delta_t) //<>//
     {
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
@@ -597,11 +612,11 @@ void draw()
         moveSpeed = velocityToGoal;
         updateParticles();
       }
-      old_time = time; //<>//
+      old_time = time;
     }    
   }
 
-  //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or //<>//
+  //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
   if (!step)
   { 

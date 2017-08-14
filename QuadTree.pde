@@ -1,4 +1,4 @@
-int QuadTreeLevel = 5;
+int QuadTreeLevel = 4;
 ArrayList<Integer> closedList = new ArrayList<Integer>();
 ArrayList<Node> allNodes = new ArrayList<Node>();
 ArrayList<Integer> openList = new ArrayList<Integer>();
