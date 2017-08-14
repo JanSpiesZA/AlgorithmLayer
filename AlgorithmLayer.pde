@@ -154,7 +154,7 @@ float minDetectDistance = 10.0;        //Closer than this value and the sensors 
 float maxDetectDistance = 200.0;
 
 
-PVector goalXY = new PVector(imgWidth * 0.6, imgHeight/2);       //Holds the goal's x and y coords
+PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
 float startX = 0;          //Starting point for straight line to goal used by Bug algorithm families
 float startY = 0;
 float x_vector_avoid = 0.0;
@@ -190,6 +190,9 @@ int ts = 12;  //textSize value used to display information on the graphical scre
 
 String frameText;    //## String used to change what is displayed in the simulation frame
 
+float accuDist = 0.0;    //accumulated distance from robot movement
+int accuTime = 0;      //accumulated time from robot movements
+
 
 
 void setup()
@@ -216,7 +219,8 @@ void setup()
 //-------------------------------------------------------------------------------
   //Initialise Robot
   myRobot = new Robot("ROBOT", diameter);        //Create a new robot object
-  myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+  //myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+  myRobot.set(0,imgHeight/2,robotPosOffset.z);
 
   //Add sensors to the robot object
   for (int k=0; k<numSensors2; k++)
@@ -248,7 +252,7 @@ void setup()
   if (maxTilesY % 2 != 0) maxTilesY++;
   
   println("img.Width : "+img.width+", img.Height: "+img.height);
-  //println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth);
+  //println("worldHeight :"+worldHeight+", worldWidth: "+worldWidth); //<>//
   println("scaleFactor :"+scaleFactor);
   println(maxTilesX+","+maxTilesY);
   
@@ -257,7 +261,7 @@ void setup()
   //### Calculates strating coords for tiles to ensure the 4 center tiles have their corners touching
   //###  in the middle of the screen 
   float _startX = img.width/2.0 - tileSize/2.0 - tileSize*(maxTilesX/2.0 - 1); // -(tileSize * (maxTilesX - 1) / 2);
-  float _startY = img.height/2.0 - tileSize/2.0 - tileSize*(maxTilesY/2.0 - 1);
+  float _startY = img.height/2.0 - tileSize/2.0 - tileSize*(maxTilesY/2.0 - 1); //<>//
   println("startX: "+_startX+", startY: "+_startY);
   
   //###Sets up a 2D array which will hold the world Tiles
@@ -593,11 +597,11 @@ void draw()
     //textAlign(LEFT, TOP);
     //fill(0);
     //text("frame rate (ms): "+(newMillis - oldMillis),5,5);
-    
+     //<>//
     
     //## Quad tree functions used to calculate the shortest path to the goal 
     //## Clears the nodelist in order to start with a clean list
-    //allNodes.clear();    //<>//
+    //allNodes.clear();    //<>// //<>//
     ////!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////!! will not be used in path planning
     //## Divides map into quads to be used for path planning
@@ -945,6 +949,11 @@ void PlotRobot()
   {
     moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
+    
+    accuDist += moveSpeed;// / scaleFactor;
+    if (moveSpeed !=0 ) accuTime++;
+    println("moveSpeed : " + moveSpeed + "\taccuMove : "+accuDist + "\taccuTime : "+accuTime);
+    
     myRobot.move(moveAngle, moveSpeed);
   }
   myRobot.display();
