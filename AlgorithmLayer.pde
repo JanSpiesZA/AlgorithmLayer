@@ -480,17 +480,17 @@ void draw()
   findPath();
   
   //### Calculates the attractive field for each tile
-  for (int k = 0; k < maxTilesX; k++)
-  {
-    for (int l = 0; l < maxTilesY; l++)
-    {
-      if (tile[k][l].tileType == "UNASSIGNED")
-      {
-        tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-        tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-      }
-    }
-  }  
+  //for (int k = 0; k < maxTilesX; k++)
+  //{
+  //  for (int l = 0; l < maxTilesY; l++)
+  //  {
+  //    if (tile[k][l].tileType == "UNASSIGNED")
+  //    {
+  //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+  //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+  //    }
+  //  }
+  //}  
   
   //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
   //##  and current state of sensors
@@ -510,28 +510,22 @@ void draw()
   textAlign(CENTER,BOTTOM);  
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   
-  //###Caclualtes the magnitude of the AOFWD vector to determine speed
-  //float velocityToGoal = 0.0;
-  //if (allowV)
-  //{
-  //  velocityToGoal = vectorAOFWD.mag();
-  //  //velocityToGoal = dist (nextWaypoint.x, nextWaypoint.y, myRobot.location.x, myRobot.location.y);      
-  //}  
+  //### Calculates the attractive field for each tile
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }
   
-  //###Calculates the vector to the next waypoint / Go To Goal vector
-  //vectorGoToGoal.x = nextWaypoint.x - myRobot.location.x;
-  //vectorGoToGoal.y = nextWaypoint.y - myRobot.location.y;  
-  //vectorGoToGoal.normalize();
-  //vectorGoToGoal.mult(100);
-  //println("Next waypoint: " +nextWaypoint);
-  
-  //float angleToGoal = atan2(vectorGoToGoal.y,vectorGoToGoal.x) - myRobot.heading;        
-  //if (angleToGoal < (-PI)) angleToGoal += 2*PI;
-  //if (angleToGoal > (PI)) angleToGoal -= 2*PI; 
-  
+  //## Calculates the movement vector based on the robot position and repulsive and attractive forces
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
   vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
-    
     
   //###Calcualtes the angle in which the robot needs to travel   
   float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
