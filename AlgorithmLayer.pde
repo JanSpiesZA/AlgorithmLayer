@@ -193,6 +193,8 @@ String frameText;    //## String used to change what is displayed in the simulat
 float accuDist = 0.0;    //accumulated distance from robot movement
 int accuTime = 0;      //accumulated time from robot movements
 
+boolean mapChange = true;
+
 
 
 void setup()
@@ -455,14 +457,6 @@ void draw()
   //displayText();     
   //## Quad tree functions used to calculate the shortest path to the goal 
   //## Clears the nodelist in order to start with a clean list
-  allNodes.clear();   
-  //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
-  //!! will not be used in path planning
-  //## Divides map into quads to be used for path planning
-  doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
-  //## Adds a START and GOAL node to the list of nodes used for path finding
-  allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
-  allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
   
   //## Displays the node positions on the map
   for (Node n: allNodes)
@@ -470,11 +464,24 @@ void draw()
      n.display();     
   }
   
-  //oldMillis = millis();
-  //!! Code must change to only do nodelink when new obstacles are detected and a new quad tree is created
-  nodeLink();  //Links all the nodes together in order to determine shortest path
-  //time = millis() - oldMillis;
-  //println("Node Link time: "+time);
+  if (mapChange)
+  {  
+    allNodes.clear();   
+    //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
+    //!! will not be used in path planning
+    //## Divides map into quads to be used for path planning
+    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
+    //## Adds a START and GOAL node to the list of nodes used for path finding
+    allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
+    allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
+    
+    //oldMillis = millis();
+    //!! Code must change to only do nodelink when new obstacles are detected and a new quad tree is created
+    nodeLink();  //Links all the nodes together in order to determine shortest path
+    //time = millis() - oldMillis;
+    //println("Node Link time: "+time);
+    mapChange = false;
+  }
   
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
