@@ -41,7 +41,7 @@ PVector rightPoint = new PVector(kinectPos.x + maxKinectPersistantView, -deltaX,
 
 float alpha = 0.1;  //### Scaling value of attractive force - must be moved out of Tile class
 float s = 100.0;    //### Spread of the goal's circle of influnce - must be moved out of Tile class
-float obstacleS = 0.0;
+float obstacleS = 50.0; //## Obstacle circle of influence
 float beta = 0.07; //scale value of pushing force
 float infinity = 1000.0;
 
@@ -395,10 +395,6 @@ void setup()
   {
     print("Simulation MODE");
   }
-  
-  //obstacleS = 1.414 * tileSize;
-  obstacleS = 50.0;    //##Includes the safety distance from the wall - robot x,y plus min distance from wall
- 
 }
 
 
@@ -450,15 +446,13 @@ void draw()
   drawTarget();
   //##Display robot sprite
   myRobot.display();  
-  //##Display all the particles
-  //displayParticles();
-  updateParticles();
+  //##Display all the particles  
+  //updateParticles();
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
-  updateParticleProb();
-  resample();
+  //updateParticleProb();
+  //resample();
   //##Display text on the screen asociated with keys allocated to doing certain functions
-  //displayText();   
-  
+  //displayText();     
   //## Quad tree functions used to calculate the shortest path to the goal 
   //## Clears the nodelist in order to start with a clean list
   allNodes.clear();   
@@ -485,18 +479,6 @@ void draw()
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
   
-  //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
-  //##  and current state of sensors
-  PlotRobot();
-  //## calcProgressPoint tracks the progress point in order to determine if wall following is over
-  //calcProgressPoint();
-  
-  //### Draws cartesian axis on the screen  
-  strokeWeight(2);
-  stroke(0,255,0);
-  line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
-  line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
-  
   //### Calculates the attractive field for each tile
   for (int k = 0; k < maxTilesX; k++)
   {
@@ -509,6 +491,18 @@ void draw()
       }
     }
   }  
+  
+  //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
+  //##  and current state of sensors
+  PlotRobot();
+  //## calcProgressPoint tracks the progress point in order to determine if wall following is over
+  //calcProgressPoint();
+  
+  //### Draws cartesian axis on the screen  
+  strokeWeight(2);
+  stroke(0,255,0);
+  line (toScreenX(-1000),toScreenY(0),toScreenX(1000),toScreenY(0));
+  line (toScreenX(0), toScreenY(-worldHeight), toScreenX(0), toScreenY(worldHeight));
   
   //## Displays mouse X and Y values in World Coords
   fill(0);  
@@ -549,7 +543,7 @@ void draw()
   velocityToGoal = vectorAOFWD.mag();
   
   //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
-  //dispVectors();  
+  dispVectors();  
     
   if (simMode)
   {
@@ -911,9 +905,9 @@ void PlotRobot()
 {  
   float distanceToTarget = PVector.dist(goalXY, myRobot.location);
 
-  float phi_GTG = calcGoalAngle(vectorGoToGoal.x, vectorGoToGoal.y);
-  float phi_AO = calcGoalAngle(vectorAvoidObstacles.x, vectorAvoidObstacles.y);
-  float phi_AO_GTG = calcGoalAngle(vectorAO_GTG[0], vectorAO_GTG[1]);
+  float phi_GTG = 0.0; //calcGoalAngle(vectorGoToGoal.x, vectorGoToGoal.y);
+  float phi_AO = calcGoalAngle(vectorAOFWD.x, vectorAOFWD.y);
+  //float phi_AO_GTG = calcGoalAngle(vectorAO_GTG[0], vectorAO_GTG[1]);
   float phi_FW = calcGoalAngle(vectorFollowWall[0], vectorFollowWall[1]);
   
   switch (stateVal)
@@ -1385,8 +1379,9 @@ float toWorldY (int _y)
 PVector calcAttractField(float _x, float _y)
 {
   PVector attractField = new PVector();
-  float d = sqrt(pow(goalXY.x - _x, 2) + pow(_y - goalXY.y, 2));
-  float angle = atan2(goalXY.y - _y, goalXY.x - _x);
+  //## Calculates attractive field towards the next waypoint in the path to the goal
+  float d = sqrt(pow(nextWaypoint.x - _x, 2) + pow(_y - nextWaypoint.y, 2));
+  float angle = atan2(nextWaypoint.y - _y, nextWaypoint.x - _x);
   
   if (d < tileSize)
   {
