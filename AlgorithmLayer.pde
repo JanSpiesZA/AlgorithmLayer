@@ -477,24 +477,11 @@ void draw()
     
     //oldMillis = millis();
     //!! Code must change to only do nodelink when new obstacles are detected and a new quad tree is created
-    //nodeLink();  //Links all the nodes together in order to determine shortest path
+    nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
     mapChange = true;
   }
-  
-  //## Finds the START node (robot position) and replace the node position with robot x and robot y position
-  //for (int k = 0; k < allNodes.size(); k++)
-  //{
-  //  if (allNodes.get(k).nodeType == "START")
-  //  {      
-  //    println ("FOUND : "+allNodes.get(k).nodeXPos);
-  //    allNodes.get(k).nodeXPos = myRobot.location.x;
-  //    allNodes.get(k).nodeYPos = myRobot.location.y;
-  //  }
-  //}  
-  
-  nodeLink();  //Links all the nodes together in order to determine shortest path  
   
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
