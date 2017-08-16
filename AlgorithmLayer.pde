@@ -16,6 +16,13 @@ boolean showVal = false;
 boolean step = true;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
 
+//### Inital position of robot in the world map where 0,0 is the left bottom corner
+//  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
+//    localisation moves the robot sprite to its localised location
+PVector robotPosOffset = new PVector (500, 441, 0.0);
+PVector goalXY = new PVector(2582, 217);       //Holds the goal's x and y coords
+//PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
+
 //All distances are measured and listed in cm's unless specified otherwise
 
 import processing.opengl.*;
@@ -58,8 +65,9 @@ float worldMapScaleY = 0; //1137;
 //String mapName = "Floorplan.png";
 //String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
-//String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map 
+//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
+//String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
+String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 
 
  
@@ -91,10 +99,7 @@ boolean wallDetect = false;
 Robot myRobot;          //Creat a myRobot instance
 float diameter = 45.0;
 
-//### Inital position of robot in the world map where 0,0 is the left bottom corner
-//  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
-//    localisation moves the robot sprite to its localised location
-PVector robotPosOffset = new PVector (180, 155, 0.0);
+
 
 final int maxParticles = 0;
 Robot[] particles = new Robot[maxParticles];
@@ -105,8 +110,8 @@ final float noiseSense = 5.0;
 float moveSpeed = 0.0;                    //Globals used to define speeds and turn angle
 float moveAngle = 0.0;
 
-float turnGain = 0.1;
-float moveGain = 0.01;
+float turnGain = 1.0; //0.1;
+float moveGain = 1.0; //0.01;
 float blendGain = 0.5;      //Gain used when blending the AO and GTG vectors;
 float normaliseGain = 100.0;
 
@@ -154,7 +159,7 @@ float minDetectDistance = 10.0;        //Closer than this value and the sensors 
 float maxDetectDistance = 200.0;
 
 
-PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
+
 float startX = 0;          //Starting point for straight line to goal used by Bug algorithm families
 float startY = 0;
 float x_vector_avoid = 0.0;
@@ -221,8 +226,8 @@ void setup()
 //-------------------------------------------------------------------------------
   //Initialise Robot
   myRobot = new Robot("ROBOT", diameter);        //Create a new robot object
-  //myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
-  myRobot.set(imgWidth/2,imgHeight/2,robotPosOffset.z);
+  myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+  //myRobot.set(imgWidth/2,imgHeight/2,robotPosOffset.z);
 
   //Add sensors to the robot object
   for (int k=0; k<numSensors2; k++)
@@ -518,17 +523,17 @@ void draw()
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
   
   //### Calculates the attractive field for each tile
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
   
   //## Calculates the movement vector based on the robot position and repulsive and attractive forces
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
