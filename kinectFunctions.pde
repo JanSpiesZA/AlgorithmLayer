@@ -37,20 +37,15 @@ void drawPixels()
      int rawDepth = depth[offset];
      PVector v = depthToWorld(x, y, rawDepth);
      
-    v.x *= 100;      //Convert depth value from meters into mm
-    v.z *= 100;
-    
-    v.x *= scaleFactor;  //Multiply values with scale factor 
-    v.z *= scaleFactor;
-         
+     v.x *= 100;      //Convert depth value from meters into mm
+     v.z *= 100;
      
-     
-     if (v.z > 0 && v.z < maxKinectDetectNormal*scaleFactor)    //Test for any invalid depth values      
+     if (v.z > 0 && v.z < maxKinectDetectNormal)    //Test for any invalid depth values      
      {
         fill(255);
         PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading - PI/2, v.x, v.z);
         strokeWeight(0);
-        ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 5, 5);
+        ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 5 * scaleFactor, 5 * scaleFactor);
         
         if (v.z <= maxKinectPersistantView) updateGravity(returnVal.x, returnVal.y);
      }
@@ -63,11 +58,11 @@ void drawPixels()
 //Adds 'n gravity value to the occupancy grid based on the amount of pixels inside each cell
 void updateGravity(float _x, float _y)
 {  
-  int x = int(_x/(tileSize*scaleFactor));
+  int x = int(_x/(tileSize));
   if (x < 0) x = 0;
   if (x >= maxTilesX) x = maxTilesX-1;
   
-  int y = int(_y/(tileSize*scaleFactor));
+  int y = int(_y/(tileSize));
   if (y < 0) y = 0;
   if (y >= maxTilesY) y = maxTilesY-1;
   

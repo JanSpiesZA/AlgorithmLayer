@@ -12,7 +12,7 @@ class Robot{
   float noiseSense = 1.0;  
   boolean makingProgress = false;       //Add progress point in order to show if robot is making progress towards goal
   PVector progressPoint = new PVector();  //Holds the coords for the latest progress point of the robot
-  PVector location = new PVector(random(0, screenSizeX), random(0, screenSizeY), random(0, 2*PI));   //Holds the robot x and y pos
+  PVector location = new PVector(random(0, worldWidth), random(0, worldHeight), random(0, 2*PI));   //randomisez x,y and heading positions for robot and particles
  
   ArrayList<Sensor> sensors = new ArrayList<Sensor>();
   
@@ -68,53 +68,49 @@ class Robot{
       case "ROBOT":
         stroke(0);
         strokeWeight(1);
-        fill(0,255,0);    
-        ellipse(toScreenX(int(location.x)), toScreenY(int(location.y)), robotDiameter, robotDiameter);         
-        textAlign(CENTER, CENTER);
-        textSize(10);
+        fill(0,255,0); 
+        ellipse(toScreenX(location.x), toScreenY(location.y), robotDiameter * scaleFactor, robotDiameter * scaleFactor);
         
-        //Displays position of sensors on robot chassis
-        //Sensor data is translated into global coords an then plotted as global coords
-        float x_glob = 0.0;
-        float y_glob = 0.0;
-        //fill(255);
-        
-        ////Plots the sensors position on the robot avatar
-        //for (int i=0; i < numSensors; i++)
-        //{
-        //  fill(255,0,0);
-        //  PVector returnVal = transRot(location.x, location.y, heading, sensorX[i], sensorY[i]);    //Takes the sensor's x,y and plot it in the global frame
-        //  ellipse(returnVal.x, returnVal.y,3,3);
-        //}
-        
-        //Displays sensor from ArrayList on robot avatar
+        //###Displays sensor from ArrayList on robot avatar
         for (int k = 0; k < sensors.size(); k++)
         {
           fill(255,0,0);          
           sensors.get(k).display(location.x,location.y,heading);
+          fill(0,255,0);          //## Set the color used to display the sensor data of the robot
           sensors.get(k).displaySensorData(location.x,location.y,heading);
         }
         
-        //Displays safeDistance in which a 'collision' occurs
+        //###Displays safeDistance in which a 'collision' occurs
         noFill();
         stroke(255,0,0);
-        ellipse(toScreenX(int(location.x)), toScreenY(int(location.y)), safeDistance*2, safeDistance*2);    //Value *2 to convert from radius to diameter
-        
+        //###Value *2 to convert from radius to diameter
+        ellipse(toScreenX(location.x), toScreenY(location.y), safeDistance*2 * scaleFactor, safeDistance*2 * scaleFactor);            
         break;
       
       case "PARTICLE":
         stroke(255,0,0);
         fill(255,0,0);
-        ellipse(toScreenX(int(location.x)), toScreenY(int(location.y)), max(1,prob*10), max(1,prob*10));  //Shows a small red dot where the head of the particle is else proportionate to the probability        
+        ellipse(toScreenX(location.x), toScreenY(location.y), max(1,prob*10), max(1,prob*10));  //Shows a small red dot where the head of the particle is else proportionate to the probability        
         textAlign(CENTER, CENTER);
-        fill(0);        
+        textSize(8);
+        text(str(prob*10),toScreenX(location.x),toScreenY(location.y));
+        fill(0);   
+        
+        //###Display simulated sensor data on screen
+        for (int k = 0; k < sensors.size(); k++)
+        {
+          fill(255,0,0);          
+          sensors.get(k).display(location.x,location.y,heading);
+          fill(255);          //## Set the color used to display the sensor data of the particle
+          sensors.get(k).displaySensorData(location.x,location.y,heading);
+        }
         break;
     } 
     stroke(0);    
-    float noseX = location.x + noseLength * cos(heading);
+    float noseX = location.x + noseLength * cos(heading); 
     float noseY = location.y + noseLength * sin(heading);
     strokeWeight(2);
-    line (toScreenX(int(location.x)), toScreenY(int(location.y)), toScreenX(int(noseX)), toScreenY(int(noseY)));
+    line (toScreenX(location.x), toScreenY(location.y), toScreenX(noseX), toScreenY(noseY));
   }
   
 
@@ -131,7 +127,7 @@ class Robot{
     location.x = newX;
     location.y = newY;
     
-    //Allows PARTICLES to live in a continuous world
+    //###Allows PARTICLES to live in a continuous world
     if (nodeType == "PARTICLE")
     {
       if (location.x > screenSizeX) location.x =- screenSizeX;
@@ -141,13 +137,14 @@ class Robot{
     }
   }
   
-  //Calcualtes distances to obstacles for each sensor in the sensor array   
+  //###Calcualtes distances to obstacles for each sensor in the sensor array
+  //###  This function is used by the particles to sense distance to 
   void sense()
   {
     for (int k = 0; k < sensors.size(); k++)
     {
       sensors.get(k).sense(location.x,location.y,heading);
-      if (sensors.get(k).sensorObstacleDist <= safeDistance) myRobot.collisionFlag = true;
+      if (sensors.get(k).sensorObstacleDist <= safeDistance) myRobot.collisionFlag = true;      
     }
   }  
   

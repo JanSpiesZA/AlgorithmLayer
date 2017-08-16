@@ -7,9 +7,9 @@ class Sensor
   float sensorHAngle = 0.0;    //Angle of sensor in horizontal plane relative to robot chassis. IE rotated left or right
   float sensorVAngle = 0.0;    //Angle of sensor in vertical plane relative to robot chassis. IE tilted up or down
   float sensorGain = 1.0;      //Gains used to indicate importance of sensor
-  int sensorObstacleDist = 0;  //Distance from THIS sensor to obstacle
-  int sensorMaxDetect = 200;
-  int sensorMinDetect = 0;
+  float sensorObstacleDist = 0;  //Distance from THIS sensor to obstacle
+  float sensorMaxDetect = 200;
+  float sensorMinDetect = 0;
   float sensorNoise = 5.0;
   
   Sensor(int _sensorXPos, int _sensorYPos, float _sensorHAngle)
@@ -27,11 +27,11 @@ class Sensor
   }
   
 ////////////////////////////////////////////////////////////////////////////////////////////  
-  //Displays a sensor based on the reference X, Y and heading values on the chassis of the robot
+  //Displays a sensor's physical placement on the robot chassis based on the reference X, Y and heading values of the sensor
   void display(float _refXPos, float _refYPos, float _refHeading)
   {        
     PVector returnVal = transRot(_refXPos, _refYPos, _refHeading, sensorXPos, sensorYPos);    //Takes the sensor's x,y and plot it in the global frame    
-    ellipse(returnVal.x, returnVal.y,3,3);
+    ellipse(toScreenX(returnVal.x), toScreenY(returnVal.y), 3 * scaleFactor, 3 * scaleFactor);
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ class Sensor
   {  
     PVector returnVal = transRot(sensorXPos, sensorYPos, sensorHAngle, sensorObstacleDist, 0);    //Takes the sensor's x,y and plot it in the global frame
     returnVal = transRot(_refXPos, _refYPos, _refHeading, returnVal.x, returnVal.y);    //Takes the sensor's x,y and plot it in the global frame
-    fill(255);
+    //fill(255);
     stroke(0);
     strokeWeight(1);
     ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 10*scaleFactor,10*scaleFactor);

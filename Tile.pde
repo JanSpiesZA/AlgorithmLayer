@@ -13,9 +13,7 @@ class Tile
   PVector field;
   PVector tilePos;
   float force = 0.0;
-  
-  
-  
+    
   Tile()
   {
     gravityCol = color(150,200,150);
@@ -24,7 +22,7 @@ class Tile
     tilePos = new PVector();
   }
   
-  Tile(int _tileX, int _tileY)
+  Tile(float _tileX, float _tileY)
   {
     gravityCol = color(150,200,150);
     tileType = "UNASSIGNED";
@@ -46,13 +44,13 @@ class Tile
       {
         gravity = 0;
         gravityCol = color(150,200,150);
-        calcField();
+        //calcAttractField();
         break;
       }
       case "MAP":
       {
         gravity = 255;        
-        calcField();
+        //calcField();
         gravityCol = color(200,150,150);
         break;
       }
@@ -60,7 +58,7 @@ class Tile
       case "USER":
       {
         gravity = 255;        
-        calcField();        
+        //calcField();        
         gravityCol = color(70,130,180);    //steelblue for user obstacles
         break;
       }
@@ -68,7 +66,7 @@ class Tile
       case "KINECT":
       {
         gravity = 255;
-        calcField();        
+        //calcField();        
         gravityCol = color(0,191,255);    //deepskyblue for kinect obstacles
         break;
       }
@@ -81,36 +79,34 @@ class Tile
     strokeWeight(1);  //Stroke weight makes the lines very light
     rectMode(CENTER);
     fill(gravityCol,200);
-    rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize, tileSize);
+    rect(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), tileSize * scaleFactor, tileSize * scaleFactor);
+    
+    //###Draws an ellipse according to the spread of the obstacles
+    //if (tileType != "UNASSIGNED")
+    //{
+    //  noFill();
+    //  strokeWeight(0);
+    //  stroke(0);
+    //  ellipse(toScreenX(tilePos.x), toScreenY(tilePos.y), obstacleS * scaleFactor, obstacleS * scaleFactor);
+    //}
+    
     
     //####Text to display the real world coords of the tile on the screen
     //textAlign(CENTER,BOTTOM);
     //textSize(10);
     //fill(0);      
     //text(int(tilePos.x)+":"+int(tilePos.y), toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)));
+    
+    //drawTileForce();
   }
 
 
   void drawTileForce()
   {
-    //Draws a flowfield indicator
-    stroke(0);    
+    //###Draws a flowfield indicator
+    strokeWeight(0);
+    stroke(0);
+    ellipse(toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), 1, 1);
     line (toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)), toScreenX(int(tilePos.x + field.x)), toScreenY(int(tilePos.y + field.y)));    
   }
-
-
-  //Calculates the force flow vector based on the position and distance of the robot and the gravity of tha specific tile
-  void calcField()
-  {
-    field.x = myRobot.location.x - tilePos.x;
-    field.y = myRobot.location.y - tilePos.y;
-    float distance = PVector.dist(myRobot.location, tilePos);
-    field.normalize();
-      
-    force = 100 / pow(distance,2); 
-    
-    field.mult(force);
-    field.mult(gravity);         
-  }
-
 }
