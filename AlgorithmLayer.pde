@@ -15,6 +15,7 @@ boolean simMode = true;
 boolean showVal = false;
 boolean step = true;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
+float timeScale = 0.1;  //value used to make the simulator slower or faster
 
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
@@ -65,9 +66,9 @@ float worldMapScaleY = 0; //1137;
 //String mapName = "Floorplan.png";
 //String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
+String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
-String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
+//String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 
 
  
@@ -196,7 +197,7 @@ int ts = 12;  //textSize value used to display information on the graphical scre
 String frameText;    //## String used to change what is displayed in the simulation frame
 
 float accuDist = 0.0;    //accumulated distance from robot movement
-int accuTime = 0;      //accumulated time from robot movements
+float accuTime = 0.0;      //accumulated time from robot movements
 
 boolean mapChange = true;
 
@@ -415,7 +416,7 @@ void draw()
 {   
   if (simMode)
   {
-    frameText = int(frameRate)+" fps   -   SIMULATION MODE"; 
+    frameText = int(frameRate)+" fps   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
   }
   else
   {
@@ -492,17 +493,17 @@ void draw()
   findPath();
   
   //### Calculates the attractive field for each tile
-  //for (int k = 0; k < maxTilesX; k++)
-  //{
-  //  for (int l = 0; l < maxTilesY; l++)
-  //  {
-  //    if (tile[k][l].tileType == "UNASSIGNED")
-  //    {
-  //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-  //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-  //    }
-  //  }
-  //}  
+  for (int k = 0; k < maxTilesX; k++)
+  {
+    for (int l = 0; l < maxTilesY; l++)
+    {
+      if (tile[k][l].tileType == "UNASSIGNED")
+      {
+        tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+        tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+      }
+    }
+  }  
   
   //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
   //##  and current state of sensors
@@ -521,19 +522,6 @@ void draw()
   textSize(10);
   textAlign(CENTER,BOTTOM);  
   text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
-  
-  //### Calculates the attractive field for each tile
-    //for (int k = 0; k < maxTilesX; k++)
-    //{
-    //  for (int l = 0; l < maxTilesY; l++)
-    //  {
-    //    if (tile[k][l].tileType == "UNASSIGNED")
-    //    {
-    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-    //    }
-    //  }
-    //}
   
   //## Calculates the movement vector based on the robot position and repulsive and attractive forces
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
@@ -567,7 +555,7 @@ void draw()
     myRobot.sense();   
     //int endTime = millis();
     //println("Sense Time: " + (endTime - startTime));
-    //myRobot.move(angleToGoal,0.5);
+    myRobot.move(angleToGoal,0.5);
     
   }
   else
@@ -957,6 +945,8 @@ void PlotRobot()
         strokeWeight(0);
         fill(0,0,255);
         ellipse (toScreenX(int(nextWaypoint.x)), toScreenY(int(nextWaypoint.y)), 20,20);      
+        
+        //##!!! Hierdie kode is nie reg nie, die go-to-goal angle moet die pushing force van die tile ook in ag neem
         phi_GTG = calcGoalAngle(nextWaypoint.x - myRobot.location.x, nextWaypoint.y - myRobot.location.y);
       }
       calcErrorAngle(phi_GTG);
@@ -964,12 +954,13 @@ void PlotRobot()
 
     if ((!myRobot.makingProgress) && (myRobot.collisionFlag))
     {
-      stateVal = 2;
+      stateVal = 1;
     }
     break;
 
   case 2:    //Avoid obstacle state
-    calcErrorAngle(phi_AO);    
+    
+    //calcErrorAngle(phi_AO);    
 
     if (myRobot.collisionFlag)
     {
@@ -991,8 +982,8 @@ void PlotRobot()
     moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
     
-    accuDist += moveSpeed;
-    if (moveSpeed !=0 ) accuTime++;
+    accuDist += moveSpeed*timeScale;
+    if (moveSpeed !=0 ) accuTime+=1*timeScale;
     println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
     myRobot.move(moveAngle, moveSpeed);
