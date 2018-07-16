@@ -363,20 +363,16 @@ void setup()
   surface.setResizable(true);
   surface.setSize(int(graphicBoxWidth), int(graphicBoxHeight));
 
-  //Change particle x and y values to prevent them from being inside walls
+  //Change particle x and y values to prevent particles from being inside walls
   for (int i=0; i < maxParticles; i++)
-  {
-        
-  //  color col = img.get (int(particles[i].location.x) ,int(particles[i].location.y));    //Test pixel colour to determine if there is an obstacle
-  //  if (red(col) == 0)
-  //  {
-  //    while(red(col) == 0)
-  //    {
-  //      particles[i].location.x = random (0, screenSizeX);
-  //      particles[i].location.y = random (0, screenSizeY);
-  //      col = img.get (int(particles[i].location.x) ,int(particles[i].location.y));    //Test pixel colour to determine if there is an obstacle
-  //    }
-  //  }
+  { 
+    println(i+":"+particles[i].location.x+" "+tileSize+" "+int(particles[i].location.x/tileSize)+" --- "+particles[i].location.y+" "+tileSize+" "+int(particles[i].location.y/tileSize)); 
+    while (tile[int(particles[i].location.x / tileSize)][int(particles[i].location.y / tileSize)].tileType != "UNASSIGNED")
+    {
+      println("BLOCKED");
+      particles[i].set(random(imgWidth), random(imgHeight), random(2*PI));      
+      println(i+":"+particles[i].location.x+" "+tileSize+" "+int(particles[i].location.x/tileSize)+" --- "+particles[i].location.y+" "+tileSize+" "+int(particles[i].location.y/tileSize));
+    }    
   }
   
   
