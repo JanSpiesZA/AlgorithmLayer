@@ -1,9 +1,9 @@
 class Robot{  
-  float heading = random (0, 2*PI);
+  float heading = random (-PI, PI);
   float robotDiameter = 0; //diameter; * scaleFactor;  //diameter of chassis
   float noseLength = diameter/2;
   float maxSpeed = 20.0*timeScale;
-  float maxTurnRate = 0.5*timeScale;  
+  float maxTurnRate = 1.0*timeScale;  
   boolean collisionFlag = false;
   String nodeType = "";    //ROBOT or PARTICLE
   float prob = 1.0;
@@ -151,7 +151,7 @@ class Robot{
     for (int k = 0; k < sensors.size(); k++)
     {
       sensors.get(k).sense(location.x,location.y,heading);
-      if (sensors.get(k).sensorObstacleDist <= safeDistance) myRobot.collisionFlag = true;      
+      if ((sensors.get(k).sensorObstacleDist <= safeDistance) && (nodeType == "ROBOT")) myRobot.collisionFlag = true;
     }
   }  
   
