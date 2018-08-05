@@ -103,7 +103,7 @@ float diameter = 45.0;
 
 
 
-final int maxParticles = 0;
+final int maxParticles = 1000;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -351,7 +351,9 @@ void setup()
   {
     particles[i] = new Robot("PARTICLE");
     //particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);  //## Move particle to robot position in order to test probability calculations
-    particles[i].setNoise(noiseForward, noiseTurn, noiseSense);    //Add noise to newly created particle
+    //particles[i].set(robotPosOffset.x + random(-10,10), robotPosOffset.y + random(-10,10), random(-PI,PI));  //## Move particle to robot position in order to test probability calculations
+    particles[i].set(random(imgWidth), random(imgHeight), random(-PI,PI));
+    particles[i].setNoise(0.05, 0.05, 15.0);    //Add noise to newly created particle
 
     for (int k = 0; k < numSensors2; k++)
     {
@@ -877,10 +879,10 @@ void updateParticles()
   //Update particle movement
   for (int i = 0; i < maxParticles; i++)
   {
-    particles[i].move(moveAngle, moveSpeed);
+    particles[i].move(moveAngle, moveSpeed);  
   }
 
-  displayParticles();
+  //displayParticles();
 }
 
 //###############################################################################################
