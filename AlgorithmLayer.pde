@@ -987,12 +987,14 @@ void PlotRobot()
   //## when in simulation mode, the robot is updated by simulated data
   if(simMode)
   {
-    moveAngle = min (myRobot.maxTurnRate, (turnGain * errorAngle));  //P controller to turn towards goal
+    moveAngle = constrain ((turnGain * errorAngle), -myRobot.maxTurnRate, myRobot.maxTurnRate);    
+    
+    //println(myRobot.maxTurnRate +" "+(turnGain * errorAngle)+" "+moveAngle + " --> ");
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
     
     accuDist += moveSpeed*timeScale;
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
-    println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
+    //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
     myRobot.move(moveAngle, moveSpeed);
   }
