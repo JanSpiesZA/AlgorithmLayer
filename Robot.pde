@@ -68,7 +68,13 @@ class Robot{
       case "ROBOT":
         stroke(0);
         strokeWeight(1);
-        fill(0,255,0); 
+        
+        //Fill robot with RED if collisionflag triggered
+        if (!collisionFlag) 
+          fill(0,255,0);
+        else
+          fill(255,0,0);
+          
         ellipse(toScreenX(location.x), toScreenY(location.y), robotDiameter * scaleFactor, robotDiameter * scaleFactor);
         
         //###Displays sensor from ArrayList on robot avatar
