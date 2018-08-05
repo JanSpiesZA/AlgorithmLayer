@@ -163,16 +163,18 @@ class Robot{
   //  x      - Robot's distance measurement of the same sensor  
   void measureProb()
   {        
-    prob = 1.0;        //Set probability to maximum value
-    float probActual =1.0;
+    prob = 1.0;        //Set probability to maximum value    
     
     for (int k = 0; k < sensors.size(); k++)
     { 
       float mu = sensors.get(k).sensorObstacleDist;
       float sigma = sensors.get(k).sensorNoise;
-      float x = myRobot.sensors.get(k).sensorObstacleDist;      
+      float x = myRobot.sensors.get(k).sensorObstacleDist; 
+      float tempProb = exp(- (pow(mu - x, 2) / pow(sigma,2)/2.0) / sqrt(2*PI * pow(sigma,2))); 
 
-      prob *= exp(- (pow(mu - x, 2) / pow(sigma,2)/2.0) / sqrt(2*PI * pow(sigma,2)));      
+      prob *= tempProb;
+      
+      //println(mu+"\t"+x+"\t"+sigma+"\t"+tempProb);
     }    
     //println(prob);
   }
