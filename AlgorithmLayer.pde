@@ -269,7 +269,7 @@ void setup()
   }
   tileSize = img.width/pow(2,xx); 
   
-  //##Calculates the number of tiles in X and in Y //<>//
+  //##Calculates the number of tiles in X and in Y
   maxTilesX = ceil((float(img.width)/(tileSize)));
   maxTilesY = ceil((float(img.height)/(tileSize)));
   
@@ -284,7 +284,7 @@ void setup()
   println("scaleFactor :"+scaleFactor);
   println(maxTilesX+","+maxTilesY);
   
-  tile = new Tile[maxTilesX][maxTilesY]; //<>//
+  tile = new Tile[maxTilesX][maxTilesY];
   
   //### Calculates strating coords for tiles to ensure the 4 center tiles have their corners touching
   //###  in the middle of the screen 
@@ -299,7 +299,7 @@ void setup()
   delay(2000);
   
   //###Sets up a 2D array which will hold the world Tiles
-  for (int x = 0; x < maxTilesX; x++) //<>//
+  for (int x = 0; x < maxTilesX; x++)
   {
     for (int y = 0; y < maxTilesY; y++)
     {
@@ -397,7 +397,7 @@ void setup()
   }
   else
   {
-    print("Simulation MODE");
+    println("Simulation MODE");
   }
 }
 
@@ -409,7 +409,7 @@ void setup()
 
 
 void draw()
-{   
+{     
   if (simMode)
   {
     frameText = int(frameRate)+" fps   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
@@ -442,21 +442,22 @@ void draw()
   
   //##Clears screen with solid background colour
   background (200);            
+  
   //##draws map as background
   image(img,toScreenX(0),toScreenY(imgHeight));  
+  
   //## Draw tiles used to display obstacle
   drawTiles();   
+  
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
+  
   //##Display robot sprite
-  myRobot.display();  
-  //##Display all the particles  
-  //updateParticles();
-  //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
-  //updateParticleProb();
-  //resample();
+  //myRobot.display(); 
+  
   //##Display text on the screen asociated with keys allocated to doing certain functions
   //displayText();     
+  
   //## Quad tree functions used to calculate the shortest path to the goal 
   //## Clears the nodelist in order to start with a clean list
   
@@ -488,7 +489,7 @@ void draw()
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
   
-  //### Calculates the attractive field for each tile
+  //### Calculates the attractive field for each tile  
   for (int k = 0; k < maxTilesX; k++)
   {
     for (int l = 0; l < maxTilesY; l++)
@@ -499,11 +500,12 @@ void draw()
         tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
       }
     }
-  }  
+  }
   
   //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
   //##  and current state of sensors
   PlotRobot();
+  
   //## calcProgressPoint tracks the progress point in order to determine if wall following is over
   //calcProgressPoint();
   
@@ -581,11 +583,11 @@ void draw()
       textAlign(CENTER, TOP);
       text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
     }    
-     //<>//
+    
     //###Routine sends new instructions to driverlayer every delta_t millis
     time = millis();  
     int interval = time - old_time;
-    if (interval > delta_t) //<>//
+    if (interval > delta_t)
     {
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
@@ -638,11 +640,11 @@ void draw()
     
     //## Quad tree functions used to calculate the shortest path to the goal 
     //## Clears the nodelist in order to start with a clean list
-    //allNodes.clear();    //<>//
+    //allNodes.clear();    //<>// //<>//
     ////!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     ////!! will not be used in path planning
     //## Divides map into quads to be used for path planning
-    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>//
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);  //<>// //<>//
     //## Adds a START and GOAL node to the list of nodes used for path finding
     //allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
     //allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
@@ -795,7 +797,10 @@ void draw()
     //  }
     //}
   }
-  //dispVectors();      //Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc  
+  //dispVectors();      //Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
+  
+  
+  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
