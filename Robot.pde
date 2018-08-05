@@ -84,26 +84,26 @@ class Robot{
         noFill();
         stroke(255,0,0);
         //###Value *2 to convert from radius to diameter
-        ellipse(toScreenX(location.x), toScreenY(location.y), safeDistance*2 * scaleFactor, safeDistance*2 * scaleFactor);            
+        ellipse(toScreenX(location.x), toScreenY(location.y), safeDistance*2 * scaleFactor, safeDistance*2 * scaleFactor);        
         break;
       
       case "PARTICLE":
         stroke(255,0,0);
         fill(255,0,0);
-        ellipse(toScreenX(location.x), toScreenY(location.y), max(1,prob*10), max(1,prob*10));  //Shows a small red dot where the head of the particle is else proportionate to the probability        
+        ellipse(toScreenX(location.x), toScreenY(location.y), 10*prob*scaleFactor,10*prob*scaleFactor);  //Shows a small red dot where the head of the particle is else proportionate to the probability        
         textAlign(CENTER, CENTER);
         textSize(8);
-        text(str(prob*10),toScreenX(location.x),toScreenY(location.y));
+        text(str(prob*10),toScreenX(location.x),toScreenY(location.y)+15);
         fill(0);   
         
         //###Display simulated sensor data on screen
-        for (int k = 0; k < sensors.size(); k++)
-        {
-          fill(255,0,0);          
-          sensors.get(k).display(location.x,location.y,heading);
-          fill(255);          //## Set the color used to display the sensor data of the particle
-          sensors.get(k).displaySensorData(location.x,location.y,heading);
-        }
+        //for (int k = 0; k < sensors.size(); k++)
+        //{
+        //  fill(255,0,0);          
+        //  sensors.get(k).display(location.x,location.y,heading);
+        //  fill(255);          //## Set the color used to display the sensor data of the particle
+        //  sensors.get(k).displaySensorData(location.x,location.y,heading);
+        //}
         break;
     } 
     stroke(0);    

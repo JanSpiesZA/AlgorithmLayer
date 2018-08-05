@@ -599,6 +599,18 @@ void draw()
       old_time = time;
     }    
   }
+  
+
+  //##Display all the particles  
+  updateParticles();
+  
+  //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
+  updateParticleProb();
+  
+  //##Display particles after new probability updates have been done
+  displayParticles();
+  
+  resample();  
 
   //## STEP is used to step through the update cycle in order to slow down the process when looking for bugs or
   //    debugging
