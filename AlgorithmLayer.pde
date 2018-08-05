@@ -556,7 +556,7 @@ void draw()
     myRobot.sense();   
     //int endTime = millis();
     //println("Sense Time: " + (endTime - startTime));
-    myRobot.move(angleToGoal,0.5);
+    //myRobot.move(angleToGoal,0.5);
     
   }
   else
@@ -662,7 +662,7 @@ void draw()
     
     //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
     //##  and current state of sensors
-    //PlotRobot();
+    PlotRobot();
     //## calcProgressPoint tracks the progress point in order to determine if wall following is over
     //calcProgressPoint();
     
@@ -976,7 +976,7 @@ void PlotRobot()
 
   case 2:    //Avoid obstacle state
     
-    //calcErrorAngle(phi_AO);    
+    calcErrorAngle(phi_AO);    
 
     if (myRobot.collisionFlag)
     {
