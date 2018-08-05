@@ -36,11 +36,13 @@ class Sensor
 
 ////////////////////////////////////////////////////////////////////////////////////////////
   //Display the sensors max distance and obstacles detected by sensors
+  //### this section of codes physically displays the ellipses on the screen associated with each particles sensor data
   void displaySensorData(float _refXPos, float _refYPos, float _refHeading)
   {  
     PVector returnVal = transRot(sensorXPos, sensorYPos, sensorHAngle, sensorObstacleDist, 0);    //Takes the sensor's x,y and plot it in the global frame
-    returnVal = transRot(_refXPos, _refYPos, _refHeading, returnVal.x, returnVal.y);    //Takes the sensor's x,y and plot it in the global frame
-    //fill(255);
+    returnVal = transRot(_refXPos, _refYPos, _refHeading, returnVal.x, returnVal.y);    //Takes the sensor's x,y and plot it in the global frame    
+    
+    fill(255);
     stroke(0);
     strokeWeight(1);
     ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 10*scaleFactor,10*scaleFactor);
@@ -72,5 +74,6 @@ class Sensor
     
     //Add noise to the measured sensor distance
     sensorObstacleDist += randomGaussian() * sensorNoise;
+    sensorObstacleDist = min(sensorObstacleDist, sensorMaxDetect);
   }
 }
