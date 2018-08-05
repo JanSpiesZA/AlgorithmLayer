@@ -91,10 +91,10 @@ class Robot{
         stroke(255,0,0);
         fill(255,0,0);
         ellipse(toScreenX(location.x), toScreenY(location.y), 10*prob*scaleFactor,10*prob*scaleFactor);  //Shows a small red dot where the head of the particle is else proportionate to the probability        
-        textAlign(CENTER, CENTER);
-        textSize(8);
-        text(str(prob*10),toScreenX(location.x),toScreenY(location.y)+15);
-        fill(0);   
+        //textAlign(CENTER, CENTER);
+        //textSize(8);
+        //text(str(prob*10),toScreenX(location.x),toScreenY(location.y)+15);
+        //fill(0);   
         
         //###Display simulated sensor data on screen
         //for (int k = 0; k < sensors.size(); k++)
@@ -117,6 +117,7 @@ class Robot{
   //Moves the robot and particles  
   void move(float turnAngle, float _forward)
   { 
+    //println(turnAngle);
     heading += turnAngle + randomGaussian() * noiseTurn;  //Add the turnAngle value to the current heading
     if (heading >= (2*PI)) heading -= (2*PI);
     if (heading <= (-2*PI)) heading += (2*PI);    
