@@ -14,14 +14,15 @@
 boolean simMode = true;
 boolean showVal = false;
 boolean step = true;
+boolean nextStep = false;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
 float timeScale = 0.1;  //value used to make the simulator slower or faster
 
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
 //    localisation moves the robot sprite to its localised location
-PVector robotPosOffset = new PVector (200, 441, 0.0);
-PVector goalXY = new PVector(200, 200);       //Holds the goal's x and y coords
+PVector robotPosOffset = new PVector (300, 441, random(-PI,PI));
+PVector goalXY = new PVector(300, 200);       //Holds the goal's x and y coords
 //PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
 
 //All distances are measured and listed in cm's unless specified otherwise
@@ -1324,7 +1325,11 @@ void keyPressed()
   if (key == ' ') showVal = true;  
   
   //## This key will cycle through one complete cycle of the robot code
-  if (key == 'n') step = true;
+  if (key == 'n') 
+  {
+    println("STEP!");
+    nextStep = true;
+  }
 
   //Use this key to enable or disable obstacle
   if (key == 'o')
