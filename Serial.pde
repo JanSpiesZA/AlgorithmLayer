@@ -75,7 +75,18 @@ void parseSerialData()
   }
 }
 
-void serialEvent(Serial p)
+void serialEvent(Serial myPort)
 {
-  inData = p.readString();
+  try
+  {
+    inData = myPort.readString();
+    //println(inData);
+    //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60" + '\r';
+    inData = trim(inData);      //Removes whitespace and carriage return, etc from string
+    parseSerialData();
+  }
+  catch(RuntimeException e)
+  {
+    e.printStackTrace();
+  }
 }
