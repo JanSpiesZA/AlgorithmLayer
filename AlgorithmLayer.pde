@@ -214,9 +214,9 @@ void setup()
   
   if(!simMode)
   {
-    kinect = new Kinect(this);
-    kinect.initDepth();
-    kinectTilt = kinect.getTilt();
+    //kinect = new Kinect(this);
+    //kinect.initDepth();
+    //kinectTilt = kinect.getTilt();
   }
   
   // Lookup table for all possible depth values (0 - 2047)
