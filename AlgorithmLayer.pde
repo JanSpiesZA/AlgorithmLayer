@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = true;
+boolean simMode = false;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -191,7 +191,7 @@ boolean allowV = false;      //Allows the v movement of the robot
 
 //##The AGENT is a 'ghost' robot showing what the actual robot should be doing when travelling towards the goal. This is basically
 //    just used to test attractive and repulsive forces and does not at this stage make use of path planning
-PVector agent = new PVector(10.0, 10.0, 0.0);
+PVector agent = new PVector(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z); //10.0, 10.0, 0.0);
 
 int ts = 12;  //textSize value used to display information on the graphical screen
 
@@ -261,7 +261,7 @@ void setup()
   while (int(pow(2,xx)) < int(maxTilesX))
   { 
     xx++;    
-  }   //<>//
+  }   //<>// //<>//
   
   int yy = 0;
   while (int(pow(2,yy)) < int(maxTilesY))
@@ -383,20 +383,20 @@ void setup()
   if (!simMode)
   {
     printArray(Serial.list());
-    myPort = new Serial(this, Serial.list()[0], 115200);  
+    myPort = new Serial(this, Serial.list()[1], 9600);  
     //myPort = new Serial(this, Serial.list()[0], 115200);
-    delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
-    myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
-    delay(500);
-    myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
-    delay(500);  
+    //delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
+    //myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
+    //delay(500);
+    //myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
+    //delay(500);  
     
-    myPort.clear();
+    //myPort.clear();
     // Throw out the first reading, in case we started reading 
     // in the middle of a string from the sender.
-    inData = myPort.readStringUntil(lf);
-    inData = null;
-    myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+    //inData = myPort.readStringUntil(lf);
+    //inData = null;    
+    myPort.bufferUntil('\r');        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
   }
   else
   {
@@ -551,14 +551,15 @@ void draw()
     //int endTime = millis();
     //println("Sense Time: " + (endTime - startTime));
   }
-  else
+  else if (!simMode)
   {
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
-    inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //inData = "d0:60";
     //parseSerialData();
     
     fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor); //<>//
     agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
     agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
@@ -648,11 +649,11 @@ void isInFOW() //<>//
   float alpha = 0.0;
   float beta = 0.0;
   float gamma =0.0; //<>//
-  PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
+  PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y); //<>//
   PVector newLeftPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, leftPoint.x, leftPoint.y);
   PVector newRightPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, rightPoint.x, rightPoint.y);
   
-  line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newLeftPoint.x)), toScreenY(int(newLeftPoint.y)));
+  line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newLeftPoint.x)), toScreenY(int(newLeftPoint.y))); //<>//
   line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newRightPoint.x)), toScreenY(int(newRightPoint.y)));
   
   for(int y = 0; y < maxTilesY; y++)
