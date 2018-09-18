@@ -33,17 +33,15 @@ void updateRobot(float _velocityToGoal, float _moveAngle)
 }
 
 void parseSerialData()
-{
+{  
   if (inData != null)
   {
     switch (inData.charAt(0))
     {
       case '?':
       {
-        inData = inData.substring(1);
-        //println(inData);
-        list = split(inData, ",");
-        
+        inData = inData.substring(1);        
+        list = split(inData, ",");        
         //Add robot real world position to inital robot position
         myRobot.location.x = (float(list[0])/10.0 + robotPosOffset.x); // * scaleFactor;
         myRobot.location.y = (float(list[1])/10.0 + robotPosOffset.y); // * scaleFactor;
@@ -61,9 +59,8 @@ void parseSerialData()
         //###Create a substring of inData starting at location 1 in the string
         //###   this removes the very first character from inData
         inData = inData.substring(1);        
-        println(inData);
-        list = split(inData, ",");
-        for (int cnt = 0; cnt < numSensors2; cnt++)
+        list = split(inData, ",");        
+        for (int cnt = 0; cnt < list.length; cnt++)
         {
           list2 = split(list[cnt], ":");
           myRobot.sensors.get(int(list2[0])).sensorObstacleDist = int(list2[1]);
