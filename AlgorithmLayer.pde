@@ -11,12 +11,14 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = false;
+boolean simMode = true;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
-float timeScale = 0.1;  //value used to make the simulator slower or faster
+float timeScale = 1.0;  //value used to make the simulator slower or faster
+
+int fixedFrameRate = 5;
 
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
@@ -206,6 +208,7 @@ boolean mapChange = true;
 
 void setup()
 {
+  frameRate(fixedFrameRate);
   //###Calculates cale factor used to scale all screen avatars/objects
   scaleFactor = graphicBoxWidth / viewPortWidth;
   //### Set viewpoint x and y so that robot is in the middle of the viewPort with startup
@@ -806,11 +809,11 @@ void PlotRobot()
     //println(myRobot.maxTurnRate +" "+(turnGain * errorAngle)+" "+moveAngle + " --> ");
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
     
-    accuDist += moveSpeed*timeScale;
+    accuDist += moveSpeed*timeScale; //<>//
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
-    myRobot.move(moveAngle, moveSpeed);
+    myRobot.move(moveAngle/float(fixedFrameRate), moveSpeed/float(fixedFrameRate));
   }
   myRobot.display();
 }
