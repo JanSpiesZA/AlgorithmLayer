@@ -1,5 +1,5 @@
 import processing.serial.*;
-Serial myPort;
+Serial motorPort;
 Serial usPort;
 
 int lf = 10;
@@ -12,7 +12,7 @@ String[] list2 = null;
 void requestSerialPosition()
 {
   println("REQUESTING!!!");
-  myPort.write("<?" + "\r");  
+  motorPort.write("<?" + "\r");  
 }
 
 
@@ -27,9 +27,9 @@ void updateRobot(float _velocityToGoal, float _moveAngle)
   String tempAngle = nf(_moveAngle,1,2);
   _moveAngle = float(tempAngle);
   _moveAngle *= 1000;
-  myPort.write("<w"+str(_moveAngle)+"\r");  
+  motorPort.write("<w"+str(_moveAngle)+"\r");  
   delay(1);
-  myPort.write("<v"+str(_velocityToGoal)+"\r");  
+  motorPort.write("<v"+str(_velocityToGoal)+"\r");  
 }
 
 void parseSerialData()
@@ -43,8 +43,9 @@ void parseSerialData()
         inData = inData.substring(1);        
         list = split(inData, ",");        
         //Add robot real world position to inital robot position
-        myRobot.location.x = (float(list[0])/10.0 + robotPosOffset.x); // * scaleFactor;
-        myRobot.location.y = (float(list[1])/10.0 + robotPosOffset.y); // * scaleFactor;
+        //Divide by 10 to convert mm's into cm's
+        myRobot.location.x = (float(list[0])/10 + robotPosOffset.x); // * scaleFactor;
+        myRobot.location.y = (float(list[1])/10 + robotPosOffset.y); // * scaleFactor;
         myRobot.heading = (float(list[2]) +robotPosOffset.z); // * scaleFactor;         
         break;
       }
@@ -72,12 +73,12 @@ void parseSerialData()
   }
 }
 
-void serialEvent(Serial myPort)
+void serialEvent(Serial p)
 {
   try
   {
-    inData = myPort.readString();
-    //println(inData);
+    inData = p.readString();
+    println(inData);
     //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60" + '\r';
     inData = trim(inData);      //Removes whitespace and carriage return, etc from string
     parseSerialData();

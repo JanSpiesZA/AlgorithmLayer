@@ -383,20 +383,21 @@ void setup()
   if (!simMode)
   {
     printArray(Serial.list());
-    myPort = new Serial(this, Serial.list()[1], 9600);  
-    //myPort = new Serial(this, Serial.list()[0], 115200);
-    //delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
-    //myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
-    //delay(500);
-    //myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
-    //delay(500);  
+    usPort = new Serial(this, Serial.list()[1], 9600);  
+    motorPort = new Serial(this, Serial.list()[0], 115200);
+    delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
+    motorPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
+    delay(500);
+    motorPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
+    delay(500);  
     
     //myPort.clear();
     // Throw out the first reading, in case we started reading 
     // in the middle of a string from the sender.
     //inData = myPort.readStringUntil(lf);
     //inData = null;    
-    myPort.bufferUntil('\r');        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+    usPort.bufferUntil('\r');        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+    motorPort.bufferUntil('\r');
   }
   else
   {
@@ -1077,16 +1078,16 @@ void keyPressed()
   if ((key == 'x') || (key == 'X'))
   {
     allowTX = !allowTX;    
-    myPort.write("<w0\r");
+    motorPort.write("<w0\r");
     delay(1);
-    myPort.write("<v\r");
+    motorPort.write("<v\r");
   }
   
   //###Controls whether the robot can move forward
   if (key == 'v') 
   {
     allowV = !allowV;
-    myPort.write("<v0\r");
+    motorPort.write("<v0\r");
   }
   
   //###Enables tilt controll for kinect sensor
