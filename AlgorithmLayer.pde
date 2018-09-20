@@ -67,9 +67,9 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
+//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 
@@ -412,7 +412,7 @@ void setup()
 
 void draw()
 {     
-  if (simMode) //<>//
+  if (simMode)
   {
     frameText = int(frameRate)+" fps   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
   }
@@ -492,7 +492,7 @@ void draw()
         }
       }
     }    
-    //mapChange = false;
+    mapChange = false;
   }
   
   //## Calculate shortest path using A* and the links created with nodeLink
@@ -586,11 +586,13 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
+      moveAngle = constrain ((turnGain * errorAngle), -myRobot.maxTurnRate, myRobot.maxTurnRate); 
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
       if (allowTX) 
       {
-        updateRobot(velocityToGoal, angleToGoal);
+        //updateRobot(velocityToGoal, angleToGoal);
+        updateRobot(velocityToGoal, moveAngle);
         moveAngle = angleToGoal;
         moveSpeed = velocityToGoal;
         updateParticles();
@@ -721,7 +723,7 @@ void updateParticleProb()
 //Main FSM for robot movement and decisions
 void PlotRobot()
 {  
-  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
+  float distanceToTarget = PVector.dist(goalXY, myRobot.location); //<>//
 
   float phi_GTG = 0.0; //calcGoalAngle(vectorGoToGoal.x, vectorGoToGoal.y);
   float phi_AO = calcGoalAngle(vectorAOFWD.x, vectorAOFWD.y);
@@ -943,26 +945,24 @@ void drawTarget()
 void dispVectors()
 {  
   //Draws a vector pointing away from all the obstacles
-  strokeWeight(4);
-  stroke(255,0,0);
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
+  //strokeWeight(4);
+  //stroke(255,0,0);
+  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+  //     toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
   
   //###Draws a vector straight towards the goal
   strokeWeight(5);
   stroke(255,255, 0);  
   line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorGoToGoal.x)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y)));
-       
-  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-  //     toScreenX(int(myRobot.location.x + 100)), toScreenY(int(myRobot.location.y + 100)));
+       toScreenX(int(myRobot.location.x + vectorGoToGoal.x)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y)));     
+  
   
   //###Draws a vector which is a blend between the goal and avoid obstacles
-  strokeWeight(5);
-  stroke(0,0, 255);
-  //line(myRobot.location.x, myRobot.location.y, myRobot.location.x + vectorBlendedAOGTG.x * 100, myRobot.location.y + vectorBlendedAOGTG.y * 100);
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAOFWD.x)), toScreenY(int(myRobot.location.y + vectorAOFWD.y)));
+  //strokeWeight(5);
+  //stroke(0,0, 255);
+  ////line(myRobot.location.x, myRobot.location.y, myRobot.location.x + vectorBlendedAOGTG.x * 100, myRobot.location.y + vectorBlendedAOGTG.y * 100);
+  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+  //     toScreenX(int(myRobot.location.x + vectorAOFWD.x)), toScreenY(int(myRobot.location.y + vectorAOFWD.y)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
