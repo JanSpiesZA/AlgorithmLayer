@@ -20,6 +20,8 @@ void requestSerialPosition()
 void updateRobot(float _velocityToGoal, float _moveAngle)
 {
   //###Limits max velocity and moveAngle to between
+  _velocityToGoal *= 10.0;
+  
   _velocityToGoal = constrain (_velocityToGoal, -200, 200);  
   _moveAngle = constrain (_moveAngle, -0.5, 0.5);
   
