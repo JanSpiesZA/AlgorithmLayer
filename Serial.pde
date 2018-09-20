@@ -42,13 +42,22 @@ void parseSerialData()
     {
       case '?':
       {
-        inData = inData.substring(1);        
+        inData = inData.substring(1); 
+        println(inData);
         list = split(inData, ",");        
         //Add robot real world position to inital robot position
         //Divide by 10 to convert mm's into cm's
-        myRobot.location.x = (float(list[0])/10 + robotPosOffset.x); // * scaleFactor;
-        myRobot.location.y = (float(list[1])/10 + robotPosOffset.y); // * scaleFactor;
-        myRobot.heading = (float(list[2]) +robotPosOffset.z); // * scaleFactor;         
+        //myRobot.location.x = (float(list[0])/10 + robotPosOffset.x); // * scaleFactor;
+        //myRobot.location.y = (float(list[1])/10 + robotPosOffset.y); // * scaleFactor;
+        //myRobot.heading = (float(list[2]) +robotPosOffset.z); // * scaleFactor;
+        
+        float delta_x = float(list[0])*cos(float(list[1]));
+        float delta_y = float(list[0])*sin(float(list[1]));
+        
+        myRobot.location.x += delta_x;
+        myRobot.location.y += delta_y;
+        myRobot.heading += float(list[1]);
+                
         break;
       }
       
