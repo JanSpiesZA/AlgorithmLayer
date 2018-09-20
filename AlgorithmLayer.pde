@@ -16,12 +16,14 @@ boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
-float timeScale = 0.1;  //value used to make the simulator slower or faster
+float timeScale = 1.0;  //value used to make the simulator slower or faster
+
+int frameTime = 0;        //Measures the time between draw() frames to calculate the scaling value needed for speed and turn rate when simulating
 
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
 //    localisation moves the robot sprite to its localised location
-PVector robotPosOffset = new PVector (300, 441, random(-PI,PI));
+PVector robotPosOffset = new PVector (300, 441, -PI/2);
 PVector goalXY = new PVector(300, 200);       //Holds the goal's x and y coords
 //PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
 
@@ -65,9 +67,9 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
+//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 
@@ -99,11 +101,11 @@ float scaleFactor = 0.0;
 boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
-float diameter = 45.0;
+float diameter = 45.0;  //Measured in cm's
 
 
 
-final int maxParticles = 1000;
+final int maxParticles = 0000;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -117,10 +119,10 @@ float moveGain = 1.0; //0.01;
 float blendGain = 0.5;      //Gain used when blending the AO and GTG vectors;
 float normaliseGain = 100.0;
 
-float safeZone = 10.0;          //Safe area around target assumed the robot reached its goal;
+float safeZone = 20.0;          //Safe area around target assumed the robot reached its goal; Distance from robot center to safezone center
 
 //safeDistance cannot be less than minDetectDistance
-float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle
+float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle (cm's)
 float distanceFromWall = 50.0;    //Distance that must be maintained when following the wall
 
 
@@ -131,18 +133,12 @@ float[] sensorPhi = {-PI/2, -PI/8*3, -PI/8*2, -PI/8, 0.0, PI/8, PI/4, PI/8*3, PI
 float[] sensorGains = {1.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 1.0};    //Gains used to indicate imprtance of sensor values
 int numSensors = sensorX.length;    //Determines the amount of sensor elements present
 float[] sensorObstacleDist = new float[numSensors];
-
-float[] vectorAO_GTG = {0.0, 0.0};    //x and y values for avoid obstacle and go-to-goal combined vector
-float[] vectorAO = {0.0, 0.0};      //x and y values for avoid obstacle vector
-float[] vectorGTG = {0.0, 0.0};      //x and y values for vector go-to-goal
-float goalX = 0.0;            //Goal's X and Y coordinates, set up by clicking with the mouse on the screen
-float goalY = 0.0;
 //This section must be removed when only the sensor class is used
 
+PVector vectorGoToGoal = new PVector();          //Vector pointing to the goal
 PVector vectorAOGTG = new PVector();
 PVector vectorAvoidObstacles = new PVector();
 PVector coordsAvoidObstacles = new PVector();    //Coords on the world frame, holding the point of the avoid obstacle vector
-PVector vectorGoToGoal = new PVector();
 PVector vectorBlendedAOGTG = new PVector();      //Holds the vector which is blended between AvoidObstacles an GoToGoal
 PVector nextWaypoint = new PVector();
 PVector vectorAOFWD = new PVector();
@@ -152,7 +148,8 @@ float[] vectorWallDist = {0.0, 0.0};  //x and y values for a line perpendicular 
 float[] vectorAwayFromWall = {0.0, 0.0};  //x and y values for vector pointing away from the wall
 float[] vectorFollowWall = {0.0, 0.0};    //Vector pointing in the direction the robot must move when following the wall
 
-
+float angleToGoal = 0.0;
+float velocityToGoal = 0.0;
 
 
 int numSensors2 = 7;          //Number of sensors used by the new code
@@ -191,7 +188,7 @@ boolean allowV = false;      //Allows the v movement of the robot
 
 //##The AGENT is a 'ghost' robot showing what the actual robot should be doing when travelling towards the goal. This is basically
 //    just used to test attractive and repulsive forces and does not at this stage make use of path planning
-PVector agent = new PVector(10.0, 10.0, 0.0);
+PVector agent = new PVector(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z); //10.0, 10.0, 0.0);
 
 int ts = 12;  //textSize value used to display information on the graphical screen
 
@@ -206,6 +203,8 @@ boolean mapChange = true;
 
 void setup()
 {
+  //size(200,200,P2D);
+  //frameRate(fixedFrameRate);
   //###Calculates cale factor used to scale all screen avatars/objects
   scaleFactor = graphicBoxWidth / viewPortWidth;
   //### Set viewpoint x and y so that robot is in the middle of the viewPort with startup
@@ -214,9 +213,9 @@ void setup()
   
   if(!simMode)
   {
-    kinect = new Kinect(this);
-    kinect.initDepth();
-    kinectTilt = kinect.getTilt();
+    //kinect = new Kinect(this);
+    //kinect.initDepth();
+    //kinectTilt = kinect.getTilt();
   }
   
   // Lookup table for all possible depth values (0 - 2047)
@@ -383,20 +382,21 @@ void setup()
   if (!simMode)
   {
     printArray(Serial.list());
-    myPort = new Serial(this, Serial.list()[0], 115200);  
-    //myPort = new Serial(this, Serial.list()[0], 115200);
+    usPort = new Serial(this, Serial.list()[1], 9600);  
+    motorPort = new Serial(this, Serial.list()[0], 115200);
     delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
-    myPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
+    motorPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
     delay(500);
-    myPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
+    motorPort.write("<w0\r");      //sends a turn rate of 0 to the chassis
     delay(500);  
     
-    myPort.clear();
+    //myPort.clear();
     // Throw out the first reading, in case we started reading 
     // in the middle of a string from the sender.
-    inData = myPort.readStringUntil(lf);
-    inData = null;
-    myPort.bufferUntil(lf);        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+    //inData = myPort.readStringUntil(lf);
+    //inData = null;    
+    usPort.bufferUntil('\r');        //Buffers serial data until Line Feed is detected and then only reads serial data out of buffer
+    motorPort.bufferUntil('\r');
   }
   else
   {
@@ -461,7 +461,7 @@ void draw()
   //## Displays the node positions on the map
   for (Node n: allNodes)
   {
-     n.display();     
+    n.display();     
   }
   
   if (mapChange)
@@ -480,28 +480,28 @@ void draw()
     nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
-    mapChange = true;
+    
+    //### Calculates the attractive field for each tile  
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }    
+    //mapChange = false;
   }
   
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
   
-  //### Calculates the attractive field for each tile  
-  for (int k = 0; k < maxTilesX; k++)
-  {
-    for (int l = 0; l < maxTilesY; l++)
-    {
-      if (tile[k][l].tileType == "UNASSIGNED")
-      {
-        tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-        tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-      }
-    }
-  }
-  
   //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
   //##  and current state of sensors
-  PlotRobot();
+  PlotRobot();  
   
   //## calcProgressPoint tracks the progress point in order to determine if wall following is over
   //calcProgressPoint();
@@ -522,14 +522,17 @@ void draw()
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
   vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
     
-  //###Calcualtes the angle in which the robot needs to travel   
-  float angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
+  //###Calcualtes the angle in which the robot needs to travel  
+  //    ??1) Converts it from an atan2 angle into a real world angle
+  //    2) Calculates the difference between the robot's heading and the goal angle
+  //    3) Converts this difference into the robot's local frame in order to determine left and right turns
+  // Based on Games Programming: Methods and How to's - Dr James Jordaan Revision 4.1 p196
+  angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
   if (angleToGoal < (-PI)) angleToGoal += 2*PI;
   if (angleToGoal > (PI)) angleToGoal -= 2*PI;
      
-  //###Caclualtes the magnitude of the AOFWD vector to determine speed
-  float velocityToGoal = 0.0;  
-  velocityToGoal = vectorAOFWD.mag();
+  //###Calculates the magnitude of the AOFWD vector to determine speed    
+  velocityToGoal = vectorAOFWD.mag();  
   
   //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
   dispVectors();  
@@ -542,7 +545,8 @@ void draw()
     textSize(16);  
     textAlign(LEFT, TOP);
     fill(0);
-    text("frame rate (ms): "+(newMillis - oldMillis),5,5);
+    frameTime = newMillis - oldMillis;
+    text("frame rate (ms): "+frameTime,5,5);
     
     //int startTime = millis();
     //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
@@ -551,10 +555,11 @@ void draw()
     //int endTime = millis();
     //println("Sense Time: " + (endTime - startTime));
   }
-  else
+  else if (!simMode)
   {
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
-    inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
+    //inData = "d0:60";
     //parseSerialData();
     
     fill(0,255,0);
@@ -584,11 +589,16 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
+      moveAngle = constrain ((turnGain * errorAngle), -myRobot.maxTurnRate, myRobot.maxTurnRate); 
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
+      
+      
+      //-----Double check en maak seker hierdie is die regte waardes MAAK HIERDIE REG, GEBRUIK DIE vectorAOFWD waardes
       println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
       if (allowTX) 
       {
         updateRobot(velocityToGoal, angleToGoal);
+        //updateRobot(velocityToGoal, moveAngle);
         moveAngle = angleToGoal;
         moveSpeed = velocityToGoal;
         updateParticles();
@@ -616,6 +626,7 @@ void draw()
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+//###############################################################################################
 //Draws the world using tiles
 void drawTiles()
 {
@@ -640,11 +651,11 @@ void drawTiles()
 //Checks to see if tile center point is inside kienct Field of View but closer than the maximum Peristant view value.
 //(http://stackoverflow.com/questions/13300904/determine-whether-point-lies-inside-triangle)
 //Kinect data outside of this area will not influence the map.
-//Kinect data inside this area will be overwritten if in the field of view.
+//Kinect data inside this area will be overwritten if in the field of view. //<>//
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
 void isInFOW() //<>//
-{
+{ //<>//
   float alpha = 0.0;
   float beta = 0.0;
   float gamma =0.0; //<>//
@@ -685,8 +696,6 @@ void updateParticles()
   {
     particles[i].move(moveAngle, moveSpeed);  
   }
-
-  //displayParticles();
 }
 
 //###############################################################################################
@@ -717,12 +726,7 @@ void updateParticleProb()
 //Main FSM for robot movement and decisions
 void PlotRobot()
 {  
-  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
-
-  float phi_GTG = 0.0; //calcGoalAngle(vectorGoToGoal.x, vectorGoToGoal.y);
-  float phi_AO = calcGoalAngle(vectorAOFWD.x, vectorAOFWD.y);
-  //float phi_AO_GTG = calcGoalAngle(vectorAO_GTG[0], vectorAO_GTG[1]);
-  float phi_FW = calcGoalAngle(vectorFollowWall[0], vectorFollowWall[1]);
+  float distanceToTarget = PVector.dist(goalXY, myRobot.location); //<>//
   
   switch (stateVal)
   {
@@ -737,8 +741,6 @@ void PlotRobot()
     break;
 
   case 1:    //Go straight to goal
-    //calcErrorAngle(phi_GTG);
-
     if (distanceToTarget <= safeZone)   //Robot is close enough to goal, stop robot
     {
       stateVal = 0;
@@ -757,19 +759,14 @@ void PlotRobot()
         //  the 2nd last element is the next waypoint
         int nextWP = finalPath.get(finalPath.size()-2); //index of next waypont in finalPath array
         nextWaypoint.x = allNodes.get(nextWP).nodeXPos;
-        nextWaypoint.y = allNodes.get(nextWP).nodeYPos;
-        
+        nextWaypoint.y = allNodes.get(nextWP).nodeYPos;        
         
         //###Draws an ellipse over the next waypoint that must be reached
         stroke(0,0,255);
         strokeWeight(0);
         fill(0,0,255);
-        ellipse (toScreenX(int(nextWaypoint.x)), toScreenY(int(nextWaypoint.y)), 20,20);      
-        
-        //##!!! Hierdie kode is nie reg nie, die go-to-goal angle moet die pushing force van die tile ook in ag neem
-        phi_GTG = calcGoalAngle(nextWaypoint.x - myRobot.location.x, nextWaypoint.y - myRobot.location.y);
-      }
-      calcErrorAngle(phi_GTG);
+        ellipse (toScreenX(int(nextWaypoint.x)), toScreenY(int(nextWaypoint.y)), 20,20);
+      }      
     }
 
     if ((!myRobot.makingProgress) && (myRobot.collisionFlag))
@@ -779,9 +776,6 @@ void PlotRobot()
     break;
 
   case 2:    //Avoid obstacle state
-    
-    calcErrorAngle(phi_AO);    
-
     if (myRobot.collisionFlag)
     {
       stateVal = 1;
@@ -789,8 +783,7 @@ void PlotRobot()
     }
     break;
 
-  case 3:
-    calcErrorAngle(phi_FW);
+  case 3:    
     //makingProgress = true;
     if (myRobot.makingProgress) stateVal = 1;
     break;
@@ -798,126 +791,22 @@ void PlotRobot()
 
   //## when in simulation mode, the robot is updated by simulated data
   if(simMode)
-  {
-    moveAngle = constrain ((turnGain * errorAngle), -myRobot.maxTurnRate, myRobot.maxTurnRate);    
+  {    
+    moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);    
     
     //println(myRobot.maxTurnRate +" "+(turnGain * errorAngle)+" "+moveAngle + " --> ");
+    //moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
+    
+    //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
     
     accuDist += moveSpeed*timeScale;
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
-    myRobot.move(moveAngle, moveSpeed);
+    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
   }
   myRobot.display();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//  Calculates a progress point towards the goal.
-//  If the robot's distance-to-goal is less than the progress point distance-to-goal,
-//      the robot progresses, else do Wall Following
-
-void calcProgressPoint()
-{  
-  float oldDist = PVector.dist(goalXY, myRobot.progressPoint);
-  float newDist = PVector.dist(goalXY, myRobot.location);
-  
-  if (newDist <= oldDist)
-  {
-    myRobot.progressPoint = myRobot.location.copy();    
-    myRobot.makingProgress = true;  
-  } else
-  {
-    myRobot.makingProgress = false;    
-  }
-
-  strokeWeight(1);
-  stroke(0);  
-  fill (0, 255, 255);
-  ellipse(myRobot.progressPoint.x, myRobot.progressPoint.y, 5, 5);
-  strokeWeight(1);
-  stroke(0);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// This function takes the angle towards the destination point and calclates the folowing:
-//    ??1) Converts it from an atan2 angle into a real world angle
-//    2) Calculates the difference between the robot's heading and the goal angle
-//    3) Converts this difference into the robot's local frame in order to determine left and right turns
-// Based on Games Programming: Methods and How to's - Dr James Jordaan Revision 4.1 p196
-void calcErrorAngle (float goalAngle)
-{
-  //if (goalAngle < 0) goalAngle += (2*PI);        //Change goal angle from atan2 to radians (global frame)
-  errorAngle = goalAngle - myRobot.heading;
-  if (errorAngle < -PI) errorAngle += (2*PI);
-  if (errorAngle > PI) errorAngle -= (2*PI);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//This function will calculate the flow field using the MAP and USER tiles
-PVector calcVectorAvoidObstacles()
-{  
-  PVector vectorAO = new PVector();
-  
-  for(int y = 0; y < maxTilesY; y++)
-  {
-    for(int x = 0; x < maxTilesX; x++)    
-    {      
-      if (tile[x][y].tileType == "MAP" || tile[x][y].tileType == "USER" || tile[x][y].tileType == "KINECT")
-      {
-        if (tile[x][y]. gravity != 0)
-        {
-          vectorAO.add(tile[x][y].field);
-        }
-      }
-    }
-  }
-  vectorAO.normalize();  
-  
-  //for (int k = 0; k < myRobot.sensors.size(); k++)
-  //{
-  //  //TransRotate sensor distance value to robot frame
-  //  tempCoords = transRot(myRobot.sensors.get(k).sensorXPos, myRobot.sensors.get(k).sensorYPos, myRobot.sensors.get(k).sensorHAngle, myRobot.sensors.get(k).sensorObstacleDist, 0);
-    
-  //  //Add all the x's and y's together to get combined vector of avoid obstacles        
-  //  vectorAO.add(tempCoords);
-  //}
-  ////vectorAO.normalize();
-  ////println(vectorAO.mag());
-  ////Transrotate avoidObstacles coords into world frame with a scaling factor
-  //tempCoords = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, vectorAO.x, vectorAO.y);
-  
-  //tempCoords.x = tempCoords.x - myRobot.location.x;
-  //tempCoords.y = tempCoords.y - myRobot.location.y;
-  
-  return vectorAO;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-PVector calculateVectorBlendedAOGTG()
-{
-  PVector result = new PVector();
-  float dist = vectorAvoidObstacles.mag();
-  float beta = 0.01;          //The smaller this value gets the smaller sigma becomes
-  float sigma = 1 - exp(-beta*dist);
-  PVector gtgBlend = new PVector();
-  PVector aoBlend = new PVector();  
-  
-  PVector.mult(vectorGoToGoal,sigma, gtgBlend);
-  PVector.mult(vectorAvoidObstacles, (1-sigma), aoBlend); 
-
-  result = PVector.add(gtgBlend, aoBlend);
-  return result;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-float calcGoalAngle(float vectX, float vectY)
-{
-  float angle = atan2 (vectY, vectX);
-  //if (angle <= 0) angle += (2*PI);
-  return angle;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -939,19 +828,17 @@ void drawTarget()
 void dispVectors()
 {  
   //Draws a vector pointing away from all the obstacles
-  strokeWeight(4);
-  stroke(255,0,0);
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
-  
-  //###Draws a vector straight towards the goal
-  strokeWeight(5);
-  stroke(255,255, 0);  
-  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-       toScreenX(int(myRobot.location.x + vectorGoToGoal.x)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y)));
-       
+  //strokeWeight(4);
+  //stroke(255,0,0);
   //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-  //     toScreenX(int(myRobot.location.x + 100)), toScreenY(int(myRobot.location.y + 100)));
+  //     toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
+  
+  ////###Draws a vector straight towards the goal
+  //strokeWeight(15);
+  //stroke(255,255, 0);  
+  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+  //     toScreenX(int(myRobot.location.x+vectorGoToGoal.x*100)), toScreenY(int(myRobot.location.y+vectorGoToGoal.y*100)));     
+  
   
   //###Draws a vector which is a blend between the goal and avoid obstacles
   strokeWeight(5);
@@ -1076,16 +963,16 @@ void keyPressed()
   if ((key == 'x') || (key == 'X'))
   {
     allowTX = !allowTX;    
-    myPort.write("<w0\r");
+    motorPort.write("<w0\r");
     delay(1);
-    myPort.write("<v\r");
+    motorPort.write("<v\r");
   }
   
   //###Controls whether the robot can move forward
   if (key == 'v') 
   {
     allowV = !allowV;
-    myPort.write("<v0\r");
+    motorPort.write("<v0\r");
   }
   
   //###Enables tilt controll for kinect sensor
