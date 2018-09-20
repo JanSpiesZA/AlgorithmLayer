@@ -30,67 +30,67 @@ void detectObstacle()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //Calculates a vector which points away from obstacles using the distance vectors from all the sensors to obstacles 
-void calcVecAO()
-{
-  float x_vector = 0.0;
-  float y_vector = 0.0;
-  float x1_vector = 0.0;
-  float y1_vector = 0.0;
+//void calcVecAO()
+//{
+//  float x_vector = 0.0;
+//  float y_vector = 0.0;
+//  float x1_vector = 0.0;
+//  float y1_vector = 0.0;
 
-  vectorAO[0] = 0.0;
-  vectorAO[1] = 0.0;
+//  vectorAO[0] = 0.0;
+//  vectorAO[1] = 0.0;
 
-  for (int i=0; i < numSensors; i++)
-  {
-    PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, sensorX[i], sensorY[i]);  //translates sensordata to global frame
-    x1_vector = returnVal.x; //x_temp;
-    y1_vector = returnVal.y; //y_temp;
+//  for (int i=0; i < numSensors; i++)
+//  {
+//    PVector returnVal = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, sensorX[i], sensorY[i]);  //translates sensordata to global frame
+//    x1_vector = returnVal.x; //x_temp;
+//    y1_vector = returnVal.y; //y_temp;
 
-    returnVal = transRot (sensorX[i], sensorY[i], sensorPhi[i], sensorObstacleDist[i], 0);    //translates obstacle distance to robot frame
-    returnVal = transRot (myRobot.location.x, myRobot.location.y, myRobot.heading, returnVal.x, returnVal.y);  //translates sensordata in robot frame to global frame
-    x_vector = returnVal.x - x1_vector;
-    y_vector = returnVal.y - y1_vector;
+//    returnVal = transRot (sensorX[i], sensorY[i], sensorPhi[i], sensorObstacleDist[i], 0);    //translates obstacle distance to robot frame
+//    returnVal = transRot (myRobot.location.x, myRobot.location.y, myRobot.heading, returnVal.x, returnVal.y);  //translates sensordata in robot frame to global frame
+//    x_vector = returnVal.x - x1_vector;
+//    y_vector = returnVal.y - y1_vector;
 
-    //Add all the vectors together and multiply with vector gains
-    vectorAO[0] += (x_vector * sensorGains[i]);
-    vectorAO[1] += (y_vector * sensorGains[i]);  
+//    //Add all the vectors together and multiply with vector gains
+//    vectorAO[0] += (x_vector * sensorGains[i]);
+//    vectorAO[1] += (y_vector * sensorGains[i]);  
 
-    //line (myRobot.x, myRobot.y, x_temp, y_temp);
-  }
-  float n = sqrt(pow(vectorAO[0], 2)+pow(vectorAO[1], 2));    //Calculates the normalisation factor for the AvoidObstacle vector
+//    //line (myRobot.x, myRobot.y, x_temp, y_temp);
+//  }
+//  float n = sqrt(pow(vectorAO[0], 2)+pow(vectorAO[1], 2));    //Calculates the normalisation factor for the AvoidObstacle vector
 
-  vectorAO[0] = 100 * vectorAO[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
-  vectorAO[1] = 100 * vectorAO[1]/n;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void calcVecGTG()
-{
-  vectorGTG[0] = goalX - myRobot.location.x;
-  vectorGTG[1] = goalY - myRobot.location.y;
-
-  float n = sqrt(pow(vectorGTG[0], 2)+pow(vectorGTG[1], 2));    //Calculates the normailsation factor for the AvoidObstacle vector
-  if (n==0) n=1;
-  vectorGTG[0] = 100 * vectorGTG[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
-  vectorGTG[1] = 100 * vectorGTG[1]/n;
-  
-  
-}
+//  vectorAO[0] = 100 * vectorAO[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
+//  vectorAO[1] = 100 * vectorAO[1]/n;
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void calcVecAO_GTG()
-{
+//void calcVecGTG()
+//{
+//  vectorGTG[0] = goalX - myRobot.location.x;
+//  vectorGTG[1] = goalY - myRobot.location.y;
 
-  for (int i = 0; i <= 1; i++)
-  {
-    vectorAO_GTG[i] = blendGain*vectorAO[i] + (1 - blendGain)*vectorGTG[i];
-  }
+//  float n = sqrt(pow(vectorGTG[0], 2)+pow(vectorGTG[1], 2));    //Calculates the normailsation factor for the AvoidObstacle vector
+//  if (n==0) n=1;
+//  vectorGTG[0] = 100 * vectorGTG[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
+//  vectorGTG[1] = 100 * vectorGTG[1]/n;
+  
+  
+//}
 
-  float n = sqrt(pow(vectorAO_GTG[0], 2)+pow(vectorAO_GTG[1], 2));    //Calculates the normailsation factor for the AvoidObstacle vector
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//void calcVecAO_GTG()
+//{
 
-  vectorAO_GTG[0] = 100 * vectorAO_GTG[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
-  vectorAO_GTG[1] = 100 * vectorAO_GTG[1]/n;
-}
+//  for (int i = 0; i <= 1; i++)
+//  {
+//    vectorAO_GTG[i] = blendGain*vectorAO[i] + (1 - blendGain)*vectorGTG[i];
+//  }
+
+//  float n = sqrt(pow(vectorAO_GTG[0], 2)+pow(vectorAO_GTG[1], 2));    //Calculates the normailsation factor for the AvoidObstacle vector
+
+//  vectorAO_GTG[0] = 100 * vectorAO_GTG[0]/n;      //Multiply by 100 gain in order to control the length of the unity vectors
+//  vectorAO_GTG[1] = 100 * vectorAO_GTG[1]/n;
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void estimateWall()
