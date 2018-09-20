@@ -18,12 +18,12 @@ boolean nextStep = false;
 boolean followPath = true;    //Setting to control if path must be followd or is it a true bug goal locate algorithm
 float timeScale = 1.0;  //value used to make the simulator slower or faster
 
-int fixedFrameRate = 5;
+int frameTime = 0;        //Measures the time between draw() frames to calculate the scaling value needed for speed and turn rate when simulating
 
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
 //    localisation moves the robot sprite to its localised location
-PVector robotPosOffset = new PVector (300, 441, random(-PI,PI));
+PVector robotPosOffset = new PVector (300, 441, -PI/2);
 PVector goalXY = new PVector(300, 200);       //Holds the goal's x and y coords
 //PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
 
@@ -101,11 +101,11 @@ float scaleFactor = 0.0;
 boolean wallDetect = false;
 
 Robot myRobot;          //Creat a myRobot instance
-float diameter = 45.0;
+float diameter = 45.0;  //Measured in cm's
 
 
 
-final int maxParticles = 1000;
+final int maxParticles = 0000;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -119,10 +119,10 @@ float moveGain = 1.0; //0.01;
 float blendGain = 0.5;      //Gain used when blending the AO and GTG vectors;
 float normaliseGain = 100.0;
 
-float safeZone = 10.0;          //Safe area around target assumed the robot reached its goal;
+float safeZone = 20.0;          //Safe area around target assumed the robot reached its goal; Distance from robot center to safezone center
 
 //safeDistance cannot be less than minDetectDistance
-float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle
+float safeDistance = 50.0;      //If sensor measured distance is less than this value, the robot is too close to an obstacle (cm's)
 float distanceFromWall = 50.0;    //Distance that must be maintained when following the wall
 
 
@@ -208,7 +208,8 @@ boolean mapChange = true;
 
 void setup()
 {
-  frameRate(fixedFrameRate);
+  //size(200,200,P2D);
+  //frameRate(fixedFrameRate);
   //###Calculates cale factor used to scale all screen avatars/objects
   scaleFactor = graphicBoxWidth / viewPortWidth;
   //### Set viewpoint x and y so that robot is in the middle of the viewPort with startup
@@ -264,7 +265,7 @@ void setup()
   while (int(pow(2,xx)) < int(maxTilesX))
   { 
     xx++;    
-  }   //<>// //<>//
+  }   //<>//
   
   int yy = 0;
   while (int(pow(2,yy)) < int(maxTilesY))
@@ -417,7 +418,7 @@ void setup()
 
 void draw()
 {     
-  if (simMode)
+  if (simMode) //<>//
   {
     frameText = int(frameRate)+" fps   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
   }
@@ -465,7 +466,7 @@ void draw()
   //## Displays the node positions on the map
   for (Node n: allNodes)
   {
-     n.display();     
+    n.display();     
   }
   
   if (mapChange)
@@ -484,24 +485,25 @@ void draw()
     nodeLink();  //Links all the nodes together in order to determine shortest path
     //time = millis() - oldMillis;
     //println("Node Link time: "+time);
-    mapChange = true;
+    
+    //### Calculates the attractive field for each tile  
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }    
+    //mapChange = false;
   }
   
   //## Calculate shortest path using A* and the links created with nodeLink
-  findPath();
+  findPath(); 
   
-  //### Calculates the attractive field for each tile  
-  for (int k = 0; k < maxTilesX; k++)
-  {
-    for (int l = 0; l < maxTilesY; l++)
-    {
-      if (tile[k][l].tileType == "UNASSIGNED")
-      {
-        tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-        tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-      }
-    }
-  }
   
   //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
   //##  and current state of sensors
@@ -546,7 +548,8 @@ void draw()
     textSize(16);  
     textAlign(LEFT, TOP);
     fill(0);
-    text("frame rate (ms): "+(newMillis - oldMillis),5,5);
+    frameTime = newMillis - oldMillis;
+    text("frame rate (ms): "+frameTime,5,5);
     
     //int startTime = millis();
     //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
@@ -563,7 +566,7 @@ void draw()
     //parseSerialData();
     
     fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor); //<>//
+    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
     agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
     agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
@@ -597,6 +600,8 @@ void draw()
         moveAngle = angleToGoal;
         moveSpeed = velocityToGoal;
         updateParticles();
+        
+        
       }
       old_time = time;
     }    
@@ -645,19 +650,19 @@ void drawTiles()
 //Checks to see if tile center point is inside kienct Field of View but closer than the maximum Peristant view value.
 //(http://stackoverflow.com/questions/13300904/determine-whether-point-lies-inside-triangle)
 //Kinect data outside of this area will not influence the map.
-//Kinect data inside this area will be overwritten if in the field of view.
+//Kinect data inside this area will be overwritten if in the field of view. //<>//
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
 void isInFOW() //<>//
-{
+{ //<>//
   float alpha = 0.0;
   float beta = 0.0;
   float gamma =0.0; //<>//
-  PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y); //<>//
+  PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
   PVector newLeftPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, leftPoint.x, leftPoint.y);
   PVector newRightPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, rightPoint.x, rightPoint.y);
   
-  line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newLeftPoint.x)), toScreenY(int(newLeftPoint.y))); //<>//
+  line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newLeftPoint.x)), toScreenY(int(newLeftPoint.y)));
   line (toScreenX(int(newKinectPos.x)), toScreenY(int(newKinectPos.y)), toScreenX(int(newRightPoint.x)), toScreenY(int(newRightPoint.y)));
   
   for(int y = 0; y < maxTilesY; y++)
@@ -809,11 +814,11 @@ void PlotRobot()
     //println(myRobot.maxTurnRate +" "+(turnGain * errorAngle)+" "+moveAngle + " --> ");
     moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
     
-    accuDist += moveSpeed*timeScale; //<>//
+    accuDist += moveSpeed*timeScale;
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
-    myRobot.move(moveAngle/float(fixedFrameRate), moveSpeed/float(fixedFrameRate));
+    //myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);
   }
   myRobot.display();
 }

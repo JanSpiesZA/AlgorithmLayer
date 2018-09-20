@@ -141,7 +141,7 @@ void findPath()
   boolean foundPath = false;
   
   //Clears both lists when starting a new path finding cycle
-  openList.clear();
+  openList.clear(); //<>//
   closedList.clear();
   finalPath.clear();
   
@@ -262,7 +262,7 @@ void findPath()
   
   
   //###Draws the best path from robot to goal
-  if (foundPath)
+  if (foundPath) //<>//
   {
     //println("Shortest Path: "+finalPath);
     for (int k = 0; k < finalPath.size()-1; k++)
