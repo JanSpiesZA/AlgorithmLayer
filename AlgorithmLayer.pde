@@ -815,6 +815,7 @@ void PlotRobot()
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
     //myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);
+    calcVectorGoToGoal();
   }
   myRobot.display();
 }
@@ -859,6 +860,18 @@ void calcErrorAngle (float goalAngle)
   if (errorAngle < -PI) errorAngle += (2*PI);
   if (errorAngle > PI) errorAngle -= (2*PI);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//
+void calcVectorGoToGoal()
+{ 
+  float _result = atan2(goalXY.y-myRobot.location.y, goalXY.x-myRobot.location.x); 
+  println(degrees(_result));
+  
+  println (degrees(myRobot.heading));
+  
+  println("Error: "+degrees((_result - myRobot.heading)));
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //This function will calculate the flow field using the MAP and USER tiles
