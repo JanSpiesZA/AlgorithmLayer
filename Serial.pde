@@ -51,8 +51,8 @@ void parseSerialData()
         //myRobot.location.y = (float(list[1])/10 + robotPosOffset.y); // * scaleFactor;
         //myRobot.heading = (float(list[2]) +robotPosOffset.z); // * scaleFactor;
         
-        float delta_x = float(list[0])*cos(float(list[1]));
-        float delta_y = float(list[0])*sin(float(list[1]));
+        float delta_x = float(list[0])*cos(float(list[1])+myRobot.heading);
+        float delta_y = float(list[0])*sin(float(list[1])+myRobot.heading);
         
         myRobot.location.x += delta_x;
         myRobot.location.y += delta_y;
