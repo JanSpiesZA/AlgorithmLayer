@@ -455,6 +455,8 @@ void draw()
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
   
+  VGraph();
+  
   //##Display text on the screen asociated with keys allocated to doing certain functions
   //displayText();
   
@@ -654,11 +656,11 @@ void drawTiles()
 //Kinect data inside this area will be overwritten if in the field of view. //<>//
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
-void isInFOW() //<>//
-{ //<>//
+void isInFOW()
+{
   float alpha = 0.0;
   float beta = 0.0;
-  float gamma =0.0; //<>//
+  float gamma =0.0;
   PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
   PVector newLeftPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, leftPoint.x, leftPoint.y);
   PVector newRightPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, rightPoint.x, rightPoint.y);
@@ -726,7 +728,7 @@ void updateParticleProb()
 //Main FSM for robot movement and decisions
 void PlotRobot()
 {  
-  float distanceToTarget = PVector.dist(goalXY, myRobot.location); //<>//
+  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
   
   switch (stateVal)
   {
@@ -804,7 +806,7 @@ void PlotRobot()
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
-    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
+    //myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
   }
   myRobot.display();
 }
