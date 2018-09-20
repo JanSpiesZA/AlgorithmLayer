@@ -133,18 +133,12 @@ float[] sensorPhi = {-PI/2, -PI/8*3, -PI/8*2, -PI/8, 0.0, PI/8, PI/4, PI/8*3, PI
 float[] sensorGains = {1.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 1.0};    //Gains used to indicate imprtance of sensor values
 int numSensors = sensorX.length;    //Determines the amount of sensor elements present
 float[] sensorObstacleDist = new float[numSensors];
-
-float[] vectorAO_GTG = {0.0, 0.0};    //x and y values for avoid obstacle and go-to-goal combined vector
-float[] vectorAO = {0.0, 0.0};      //x and y values for avoid obstacle vector
-float[] vectorGTG = {0.0, 0.0};      //x and y values for vector go-to-goal
-float goalX = 0.0;            //Goal's X and Y coordinates, set up by clicking with the mouse on the screen
-float goalY = 0.0;
 //This section must be removed when only the sensor class is used
 
+PVector vectorGoToGoal = new PVector();          //Vector pointing to the goal
 PVector vectorAOGTG = new PVector();
 PVector vectorAvoidObstacles = new PVector();
 PVector coordsAvoidObstacles = new PVector();    //Coords on the world frame, holding the point of the avoid obstacle vector
-PVector vectorGoToGoal = new PVector();
 PVector vectorBlendedAOGTG = new PVector();      //Holds the vector which is blended between AvoidObstacles an GoToGoal
 PVector nextWaypoint = new PVector();
 PVector vectorAOFWD = new PVector();
