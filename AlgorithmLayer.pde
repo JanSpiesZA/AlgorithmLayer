@@ -67,9 +67,9 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
+String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
 
@@ -455,7 +455,7 @@ void draw()
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
   
-  VGraph();
+  
   
   //##Display text on the screen asociated with keys allocated to doing certain functions
   //displayText();
@@ -471,8 +471,10 @@ void draw()
     allNodes.clear();   
     //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     //!! will not be used in path planning
-    //## Divides map into quads to be used for path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
+    //## Divides map into quads to be used for path planning    
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
+    VGraph();
+    
     //## Adds a START and GOAL node to the list of nodes used for path finding
     allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
     allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
@@ -806,7 +808,7 @@ void PlotRobot()
     if (moveSpeed !=0 ) accuTime+=1*timeScale;
     //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
     
-    //myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
+    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
   }
   myRobot.display();
 }
