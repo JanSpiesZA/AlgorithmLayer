@@ -23,12 +23,14 @@ void updateRobot(float _velocityToGoal, float _moveAngle)
   _velocityToGoal *= 10.0;
   
   _velocityToGoal = constrain (_velocityToGoal, -200, 200);  
-  _moveAngle = constrain (_moveAngle, -0.5, 0.5);
+  //_moveAngle = constrain (_moveAngle, -0.5, 0.5);
   
   //println("TXING!!!");
   String tempAngle = nf(_moveAngle,1,2);
   _moveAngle = float(tempAngle);
   _moveAngle *= 1000;
+  
+  println(_velocityToGoal+"\t"+_moveAngle);
   motorPort.write("<w"+str(_moveAngle)+"\r");  
   delay(1);
   motorPort.write("<v"+str(_velocityToGoal)+"\r");  
@@ -51,8 +53,8 @@ void parseSerialData()
         //myRobot.location.y = (float(list[1])/10 + robotPosOffset.y); // * scaleFactor;
         //myRobot.heading = (float(list[2]) +robotPosOffset.z); // * scaleFactor;
         
-        float delta_x = float(list[0])*cos(float(list[1])+myRobot.heading);
-        float delta_y = float(list[0])*sin(float(list[1])+myRobot.heading);
+        float delta_x = float(list[0])/10.0*cos(float(list[1])+myRobot.heading);
+        float delta_y = float(list[0])/10.0*sin(float(list[1])+myRobot.heading);
         
         myRobot.location.x += delta_x;
         myRobot.location.y += delta_y;
@@ -89,7 +91,7 @@ void serialEvent(Serial p)
   try
   {
     inData = p.readString();
-    println(inData);
+    //println(inData);
     //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60" + '\r';
     inData = trim(inData);      //Removes whitespace and carriage return, etc from string
     parseSerialData();

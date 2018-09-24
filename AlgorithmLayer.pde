@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = true;
+boolean simMode = false;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -562,10 +562,10 @@ void draw()
     //inData = "d0:60";
     //parseSerialData();
     
-    fill(0,255,0);
-    ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
-    agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
-    agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
+    //fill(0,255,0);
+    //ellipse(toScreenX(int(agent.x)), toScreenY(int(agent.y)), 40 * scaleFactor, 40 * scaleFactor);
+    //agent.x += 0.5 * (calcAttractField(agent.x, agent.y).x + calcRepulsiveField(agent.x, agent.y).x);
+    //agent.y += 0.5 * (calcAttractField(agent.x, agent.y).y + calcRepulsiveField(agent.x, agent.y).y);
     
     //## Show NO TX across robot to indicate no serial data is being transmitted to driver layer    
     if (!allowTX)
@@ -589,15 +589,15 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      moveAngle = constrain ((turnGain * errorAngle), -myRobot.maxTurnRate, myRobot.maxTurnRate); 
+      moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate); 
       //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
       
       
       //-----Double check en maak seker hierdie is die regte waardes MAAK HIERDIE REG, GEBRUIK DIE vectorAOFWD waardes
-      println("velocity: "+velocityToGoal+ ", angle: " + angleToGoal);
+      println("velocity: "+velocityToGoal+ "\t angleToGoal: " + angleToGoal + "\t moveAngle: "+moveAngle);
       if (allowTX) 
       {
-        updateRobot(velocityToGoal, angleToGoal);
+        updateRobot(velocityToGoal, moveAngle);
         //updateRobot(velocityToGoal, moveAngle);
         moveAngle = angleToGoal;
         moveSpeed = velocityToGoal;
