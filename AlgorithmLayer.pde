@@ -199,6 +199,8 @@ float accuTime = 0.0;      //accumulated time from robot movements
 
 boolean mapChange = true;
 
+float distanceToTarget = 0.0;
+
 
 
 void setup()
@@ -258,7 +260,7 @@ void setup()
   //## Calculates the smallest binary value that can be used to calculate the tilesize with
   int xx = 0;
   while (int(pow(2,xx)) < int(maxTilesX))
-  { 
+  {  //<>//
     xx++;    
   }   //<>//
   
@@ -383,7 +385,7 @@ void setup()
   {
     printArray(Serial.list());
     usPort = new Serial(this, Serial.list()[1], 9600);  
-    motorPort = new Serial(this, Serial.list()[0], 115200);
+    motorPort = new Serial(this, Serial.list()[2], 115200);
     delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
     motorPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
     delay(500);
@@ -412,18 +414,7 @@ void setup()
 
 
 void draw()
-{     
-  if (simMode)
-  {
-    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
-  }
-  else
-  {
-    frameText = int(frameRate)+" fps";
-  }  
-  surface.setTitle(frameText);
-  
-  
+{ 
   if (showVal)
   {
    for (int k=0; k<numSensors2; k++) print(int(myRobot.sensors.get(k).sensorObstacleDist)+"\t");
@@ -510,12 +501,13 @@ void draw()
   //## Calculate shortest path using A* and the links created with nodeLink
   findPath();
   
-  //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
-  //##  and current state of sensors
-  PlotRobot();  
-  
   //## calcProgressPoint tracks the progress point in order to determine if wall following is over
   //calcProgressPoint();
+  
+  //##PlotRobot is the main FSM for the robot. Its used to make decision on what to do next based on the robot position
+  //##  and current state of sensors
+  distanceToTarget = PVector.dist(goalXY, myRobot.location);
+  PlotRobot();
   
   //### Draws cartesian axis on the screen  
   strokeWeight(2);
@@ -532,7 +524,7 @@ void draw()
   //## Calculates the movement vector based on the robot position and repulsive and attractive forces
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
   vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
-    
+  
   //###Calcualtes the angle in which the robot needs to travel  
   //    ??1) Converts it from an atan2 angle into a real world angle
   //    2) Calculates the difference between the robot's heading and the goal angle
@@ -541,15 +533,14 @@ void draw()
   angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
   if (angleToGoal < (-PI)) angleToGoal += 2*PI;
   if (angleToGoal > (PI)) angleToGoal -= 2*PI;
-     
-  //###Calculates the magnitude of the AOFWD vector to determine speed    
-  velocityToGoal = vectorAOFWD.mag();  
   
-  //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
-  dispVectors();  
-    
+  moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);
+  //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
+  moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
+     
   if (simMode)
   {
+    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle+"  -   SIMULATION MODE    -    Time Scale: "+timeScale;
     //## Shows the framerate in milli seconds on the top of the screen
     oldMillis = newMillis;
     newMillis = millis();
@@ -559,15 +550,21 @@ void draw()
     frameTime = newMillis - oldMillis;
     text("frame rate (ms): "+frameTime,5,5);
     
-    //int startTime = millis();
+    int startTime = millis();
     //##Makes use of sensor class to detect obstacles using the obstacle blocks on the map to determine a simulated
     //##  distance value
     myRobot.sense();   
-    //int endTime = millis();
-    //println("Sense Time: " + (endTime - startTime));
+    int endTime = millis();
+    println("Sense Time: " + (endTime - startTime));
+    accuDist += moveSpeed*float(frameTime)/1000*timeScale;
+    if (moveSpeed !=0 ) accuTime+=float(frameTime)/1000.0*timeScale;
+    println("distance to target: "+distanceToTarget+"\tmoveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
+    
+    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);  
   }
   else if (!simMode)
   {
+    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle;
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
     //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
     //inData = "d0:60";
@@ -593,6 +590,7 @@ void draw()
       textSize(40);
       textAlign(CENTER, TOP);
       text("NO V", toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)));
+      moveSpeed = 0.0;
     }    
     
     //###Routine sends new instructions to driverlayer every delta_t millis
@@ -600,23 +598,21 @@ void draw()
     int interval = time - old_time;
     if (interval > delta_t)
     {
-      moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate); 
-      //println("vectorGTG: "+vectorGoToGoal+", vectorAvoidObstacles: "+vectorAvoidObstacles+", vectorAOFWD: "+vectorAOFWD);
-      
-      
       //-----Double check en maak seker hierdie is die regte waardes MAAK HIERDIE REG, GEBRUIK DIE vectorAOFWD waardes
       println("velocity: "+velocityToGoal+ "\t angleToGoal: " + angleToGoal + "\t moveAngle: "+moveAngle);
       if (allowTX) 
       {
-        updateRobot(velocityToGoal, moveAngle);
-        //updateRobot(velocityToGoal, moveAngle);
-        moveAngle = angleToGoal;
-        moveSpeed = velocityToGoal;
-        updateParticles();
+        updateRobot(moveSpeed, moveAngle);
       }
       old_time = time;
     }    
-  }  
+  }
+  surface.setTitle(frameText);
+  
+  myRobot.display();
+  
+  //??Displays different vectors, ie: Go-To-Goal, Avoid Obstacle, etc
+  dispVectors(); 
 
   //##Display all the particles  
   updateParticles();
@@ -666,7 +662,7 @@ void drawTiles()
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
 void isInFOW()
-{
+{ //<>//
   float alpha = 0.0;
   float beta = 0.0;
   float gamma =0.0;
@@ -737,7 +733,7 @@ void updateParticleProb()
 //Main FSM for robot movement and decisions
 void PlotRobot()
 {  
-  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
+//  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
   
   switch (stateVal)
   {
@@ -798,26 +794,7 @@ void PlotRobot()
     //makingProgress = true;
     if (myRobot.makingProgress) stateVal = 1;
     break;
-  }
-
-  //## when in simulation mode, the robot is updated by simulated data
-  if(simMode)
-  {    
-    moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);    
-    
-    //println(myRobot.maxTurnRate +" "+(turnGain * errorAngle)+" "+moveAngle + " --> ");
-    //moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
-    
-    //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
-    moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
-    
-    accuDist += moveSpeed*timeScale;
-    if (moveSpeed !=0 ) accuTime+=1*timeScale;
-    //println("moveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
-    
-    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);    
-  }
-  myRobot.display();
+  }  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
