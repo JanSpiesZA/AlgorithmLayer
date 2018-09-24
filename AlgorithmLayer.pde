@@ -415,7 +415,7 @@ void draw()
 {     
   if (simMode)
   {
-    frameText = int(frameRate)+" fps   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
+    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   -   SIMULATION MODE    -    Time Scale: "+timeScale; 
   }
   else
   {
@@ -450,7 +450,11 @@ void draw()
   image(img,toScreenX(0),toScreenY(imgHeight));  
   
   //## Draw tiles used to display obstacle
-  drawTiles();   
+  
+  oldMillis = millis();    
+  drawTiles();
+  time = millis() - oldMillis;
+  println("Draw Tiles: "+time);
   
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
@@ -469,30 +473,37 @@ void draw()
     allNodes.clear();   
     //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     //!! will not be used in path planning
-    //## Divides map into quads to be used for path planning
-    doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel); 
+    //## Divides map into quads to be used for path planning    
+    oldMillis = millis();
+    //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);        
+    VGraph();
+    time = millis() - oldMillis;
+    println("Node Creation: "+time);
+    
     //## Adds a START and GOAL node to the list of nodes used for path finding
     allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
     allNodes.add( new Node(goalXY.x, goalXY.y, "GOAL", allNodes.size()));
     
-    //oldMillis = millis();
-    //!! Code must change to only do nodelink when new obstacles are detected and a new quad tree is created
+    oldMillis = millis();    
     nodeLink();  //Links all the nodes together in order to determine shortest path
-    //time = millis() - oldMillis;
-    //println("Node Link time: "+time);
+    time = millis() - oldMillis;
+    println("Node Link time: "+time);
     
-    //### Calculates the attractive field for each tile  
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }    
+    //### Calculates the attractive field for each tile
+    //oldMillis = millis();
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
+    //time = millis() - oldMillis;
+    //println("Potential field: "+time);
     //mapChange = false;
   }
   
@@ -637,7 +648,7 @@ void drawTiles()
       tile[x][y].tileDraw();
       //if (tile[x][y].tileType == "MAP" || tile[x][y].tileType == "USER" || tile[x][y].tileType == "KINECT")
       {
-        tile[x][y].drawTileForce();
+        //tile[x][y].drawTileForce();
       }
       //textAlign(CENTER, TOP);
       //textSize(10);
@@ -654,11 +665,11 @@ void drawTiles()
 //Kinect data inside this area will be overwritten if in the field of view. //<>//
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
-void isInFOW() //<>//
-{ //<>//
+void isInFOW()
+{
   float alpha = 0.0;
   float beta = 0.0;
-  float gamma =0.0; //<>//
+  float gamma =0.0;
   PVector newKinectPos = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, kinectPos.x, kinectPos.y);
   PVector newLeftPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, leftPoint.x, leftPoint.y);
   PVector newRightPoint = transRot(myRobot.location.x, myRobot.location.y, myRobot.heading, rightPoint.x, rightPoint.y);
@@ -726,7 +737,7 @@ void updateParticleProb()
 //Main FSM for robot movement and decisions
 void PlotRobot()
 {  
-  float distanceToTarget = PVector.dist(goalXY, myRobot.location); //<>//
+  float distanceToTarget = PVector.dist(goalXY, myRobot.location);
   
   switch (stateVal)
   {
