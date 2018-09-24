@@ -31,7 +31,7 @@ void VGraph()
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;                   
-          case 2: case 3: case 6: case 7:
+          case 2: case 3: case 5: case 6: case 7:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;          
@@ -40,18 +40,18 @@ void VGraph()
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 8: case 9: case 40: case 41:
+          case 8: case 9: case 33: case 40: case 41:
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 10: case 11:
+          case 10: case 11: case 12: case 34:
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 16: case 20: case 144: case 148:
+          case 16: case 20: case 132: case 144: case 148:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 18: case 22:
+          case 17: case 18: case 21: case 22: case 23: case 130: case 134:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList  
             break;            
           case 32:
@@ -59,14 +59,14 @@ void VGraph()
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break; 
-          case 64: case 96: case 192: case 224:
+          case 64: case 96: case 160: case 192: case 224:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList            
             break;
-          case 72: case 104:
+          case 65: case 72: case 97: case 104: case 105: case 136: case 232:
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 80: case 208:
+          case 48: case 80: case 208: case 240:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList            
             break;
           case 128:
