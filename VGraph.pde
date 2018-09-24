@@ -44,14 +44,14 @@ void VGraph()
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 10: case 11: case 12: case 34:
+          case 10: case 11: case 12: case 15: case 34:
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
           case 16: case 20: case 132: case 144: case 148:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 17: case 18: case 21: case 22: case 23: case 130: case 134:
+          case 17: case 18: case 21: case 22: case 23: case 130: case 134: case 150:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y-tileSize/2-5,allNodes.size()));    //Add new node to allNodes arrayList  
             break;            
           case 32:
@@ -66,7 +66,7 @@ void VGraph()
           case 65: case 72: case 97: case 104: case 105: case 136: case 232:
             allNodes.add(new Node((tile[k][l].tilePos.x+tileSize/2+5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList
             break;
-          case 48: case 80: case 208: case 240:
+          case 48: case 80: case 208: case 212: case 240:
             allNodes.add(new Node((tile[k][l].tilePos.x-tileSize/2-5),tile[k][l].tilePos.y+tileSize/2+5,allNodes.size()));    //Add new node to allNodes arrayList            
             break;
           case 128:
