@@ -124,7 +124,7 @@ class Robot{
   void move(float turnAngle, float _forward)
   { 
     //println(turnAngle);
-    heading += turnAngle + randomGaussian() * noiseTurn;  //Add the turnAngle value to the current heading //<>//
+    heading += turnAngle + randomGaussian() * noiseTurn;  //Add the turnAngle value to the current heading
     if (heading >= (2*PI)) heading -= (2*PI);
     if (heading <= (-2*PI)) heading += (2*PI);    
     
