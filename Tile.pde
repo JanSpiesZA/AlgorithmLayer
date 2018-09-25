@@ -97,7 +97,7 @@ class Tile
     //fill(0);      
     //text(int(tilePos.x)+":"+int(tilePos.y), toScreenX(int(tilePos.x)), toScreenY(int(tilePos.y)));
     
-    drawTileForce();
+    //drawTileForce();
   }
 
 
