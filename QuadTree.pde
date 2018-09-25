@@ -92,7 +92,8 @@ void nodeLink()
         {
           //Test for intersect between current box and line
           //  If the tile has gravity and the line crosses the tile then the Intersect flag is set
-          if ((tile[k][l].tileType == "MAP" || tile[k][l].tileType == "USER") 
+          //if ((tile[k][l].tileType == "MAP" || tile[k][l].tileType == "USER")
+          if ((tile[k][l].tileType != "UNASSIGNED")
               && (line_box_xywh(n1.nodeXPos,n1.nodeYPos,n2.nodeXPos,n2.nodeYPos,k*tileSize,l*tileSize,tileSize,tileSize)))
           {
             intersect = true;            
