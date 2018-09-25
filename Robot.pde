@@ -137,10 +137,10 @@ class Robot{
     //###Allows PARTICLES to live in a continuous world
     if (nodeType == "PARTICLE")
     {
-      if (location.x > screenSizeX) location.x =- screenSizeX;
-      if (location.x < 0) location.x += screenSizeX;
-      if (location.y > screenSizeY) location.y =- screenSizeY;
-      if (location.y < 0) location.y += screenSizeY;
+      if (location.x > worldWidth) location.x =- worldWidth;
+      if (location.x < 0) location.x += worldWidth;
+      if (location.y > worldHeight) location.y =- worldHeight;
+      if (location.y < 0) location.y += worldHeight;
     }
   }
   

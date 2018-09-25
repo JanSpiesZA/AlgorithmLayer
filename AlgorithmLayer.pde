@@ -489,20 +489,20 @@ void draw()
     //println("Node Link time: "+time);
     
     //### Calculates the attractive field for each tile
-    oldMillis = millis();
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }
-    time = millis() - oldMillis;
-    println("Potential field: "+time);
+    //oldMillis = millis();
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
+    //time = millis() - oldMillis;
+    //println("Potential field: "+time);
     //mapChange = false;
   }
   
@@ -729,7 +729,7 @@ void updateParticles()
   //Update particle movement
   for (int i = 0; i < maxParticles; i++)
   {
-    particles[i].move(moveAngle, moveSpeed);  
+    particles[i].move(newMoveAngle*float(frameTime)/1000.0, newMoveSpeed*float(frameTime)/1000);  
   }
 }
 
