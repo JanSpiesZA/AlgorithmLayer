@@ -39,7 +39,7 @@ Kinect kinect;
 float maxKinectDetectNormal = 400.0;  //Maximum distance we are going to use the kinect to detect distance, measured in cm's
 float maxKinectDetectTooFar = 800.0;
 float maxKinectDeadZone = 40.0;
-float maxKinectPersistantView = 200.0;    //All kinect obstacles up to this distance will be persistant
+float maxKinectPersistantView = 300.0;    //All kinect obstacles up to this distance will be persistant
 float kinectFOW = 60.0;        //Field of View on the horizontal axis
 float kinectTilt = 0.0;        //Tilt angle of kinect sensor
 int skip=10;          //constant used to set the subsample factor fo the kinect data
@@ -114,7 +114,7 @@ final float noiseSense = 5.0;
 float moveSpeed = 0.0;                    //Globals used to define speeds and turn angle
 float moveAngle = 0.0;
 
-float turnGain = 1.0; //0.1;
+float turnGain = 0.5; //0.1;
 float moveGain = 1.0; //0.01;
 float blendGain = 0.5;      //Gain used when blending the AO and GTG vectors;
 float normaliseGain = 100.0;
@@ -215,9 +215,9 @@ void setup()
   
   if(!simMode)
   {
-    //kinect = new Kinect(this);
-    //kinect.initDepth();
-    //kinectTilt = kinect.getTilt();
+    kinect = new Kinect(this);
+    kinect.initDepth();
+    kinectTilt = kinect.getTilt();
   }
   
   // Lookup table for all possible depth values (0 - 2047)
@@ -464,7 +464,10 @@ void draw()
     allNodes.clear();   
     //!! Quadtree values must be changed form 0,0 to world's min x and y values else negative coords 
     //!! will not be used in path planning
-    //## Divides map into quads to be used for path planning    
+    //## Divides map into quads to be used for path planning  
+    
+    
+    
     oldMillis = millis();
     //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);        
     VGraph();
@@ -534,7 +537,14 @@ void draw()
   if (angleToGoal < (-PI)) angleToGoal += 2*PI;
   if (angleToGoal > (PI)) angleToGoal -= 2*PI;
   
-  moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);
+  if (distanceToTarget == 0)
+  {
+    moveAngle = 0;
+  }
+  else
+  {
+    moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);
+  }
   //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
   moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
      
@@ -565,6 +575,8 @@ void draw()
   else if (!simMode)
   {
     frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle;
+    isInFOW();
+    drawPixels();
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
     //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
     //inData = "d0:60";

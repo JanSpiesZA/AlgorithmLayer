@@ -2,7 +2,7 @@ class Robot{
   float heading = random (-PI, PI);
   float robotDiameter = 0; //diameter; * scaleFactor;  //diameter of chassis
   float noseLength = diameter/2;
-  float maxSpeed = 20.0*timeScale;
+  float maxSpeed = 10.0*timeScale;
   float maxTurnRate = 1.0*timeScale;  
   boolean collisionFlag = false;
   String nodeType = "";    //ROBOT or PARTICLE
