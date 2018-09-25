@@ -385,7 +385,7 @@ void setup()
   {
     printArray(Serial.list());
     usPort = new Serial(this, Serial.list()[1], 9600);  
-    motorPort = new Serial(this, Serial.list()[2], 115200);
+    motorPort = new Serial(this, Serial.list()[0], 115200);
     delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
     motorPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
     delay(500);
@@ -445,7 +445,7 @@ void draw()
   oldMillis = millis();    
   drawTiles();
   time = millis() - oldMillis;
-  println("Draw Tiles: "+time);
+  //println("Draw Tiles: "+time);
   
   //##Draw the goal of where the robot needs to go on the screen
   drawTarget();
@@ -469,7 +469,7 @@ void draw()
     //doQuadTree(0,0, maxTilesX, maxTilesY, QuadTreeLevel);        
     VGraph();
     time = millis() - oldMillis;
-    println("Node Creation: "+time);
+    //println("Node Creation: "+time);
     
     //## Adds a START and GOAL node to the list of nodes used for path finding
     allNodes.add( new Node(myRobot.location.x, myRobot.location.y, "START", allNodes.size())); 
@@ -478,7 +478,7 @@ void draw()
     oldMillis = millis();    
     nodeLink();  //Links all the nodes together in order to determine shortest path
     time = millis() - oldMillis;
-    println("Node Link time: "+time);
+    //println("Node Link time: "+time);
     
     //### Calculates the attractive field for each tile
     //oldMillis = millis();
@@ -555,7 +555,7 @@ void draw()
     //##  distance value
     myRobot.sense();   
     int endTime = millis();
-    println("Sense Time: " + (endTime - startTime));
+    //println("Sense Time: " + (endTime - startTime));
     accuDist += moveSpeed*float(frameTime)/1000*timeScale;
     if (moveSpeed !=0 ) accuTime+=float(frameTime)/1000.0*timeScale;
     println("distance to target: "+distanceToTarget+"\tmoveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
