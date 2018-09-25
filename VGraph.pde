@@ -6,7 +6,7 @@ void VGraph()
   {
     for (int l = 1; l < maxTilesY - 1; l++)
     { 
-      int sum = 0; //<>//
+      int sum = 0;
       if (tile[k][l].tileType != "UNASSIGNED")
       {
         if (tile[k-1][l+1].tileType != "UNASSIGNED") sum += 1;

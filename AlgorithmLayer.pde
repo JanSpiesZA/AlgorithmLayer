@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = false;
+boolean simMode = true;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -200,6 +200,9 @@ float accuTime = 0.0;      //accumulated time from robot movements
 boolean mapChange = true;
 
 float distanceToTarget = 0.0;
+
+float newMoveAngle = 0.0;
+float newMoveSpeed = 0.0;
 
 
 
@@ -415,6 +418,7 @@ void setup()
 
 void draw()
 { 
+  
   if (showVal)
   {
    for (int k=0; k<numSensors2; k++) print(int(myRobot.sensors.get(k).sensorObstacleDist)+"\t");
@@ -484,20 +488,20 @@ void draw()
     //println("Node Link time: "+time);
     
     //### Calculates the attractive field for each tile
-    //oldMillis = millis();
-    //for (int k = 0; k < maxTilesX; k++)
-    //{
-    //  for (int l = 0; l < maxTilesY; l++)
-    //  {
-    //    if (tile[k][l].tileType == "UNASSIGNED")
-    //    {
-    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-    //    }
-    //  }
-    //}
-    //time = millis() - oldMillis;
-    //println("Potential field: "+time);
+    oldMillis = millis();
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }
+    time = millis() - oldMillis;
+    println("Potential field: "+time);
     //mapChange = false;
   }
   
@@ -546,11 +550,12 @@ void draw()
     moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);
   }
   //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
+  distanceToTarget = vectorAOFWD.mag();
   moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
      
   if (simMode)
   {
-    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle+"  -   SIMULATION MODE    -    Time Scale: "+timeScale;
+    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle+"  -   SIMULATION MODE    -    Time Scale: "+timeScale; //<>//
     //## Shows the framerate in milli seconds on the top of the screen
     oldMillis = newMillis;
     newMillis = millis();
@@ -568,9 +573,19 @@ void draw()
     //println("Sense Time: " + (endTime - startTime));
     accuDist += moveSpeed*float(frameTime)/1000*timeScale;
     if (moveSpeed !=0 ) accuTime+=float(frameTime)/1000.0*timeScale;
-    println("distance to target: "+distanceToTarget+"\tmoveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);
+    println("distance to target: "+distanceToTarget+"\tmoveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);    
+    myRobot.move(newMoveAngle*float(frameTime)/1000.0, newMoveSpeed*float(frameTime)/1000);
     
-    myRobot.move(moveAngle*float(frameTime)/1000.0, moveSpeed*float(frameTime)/1000);  
+    //This tries to simulate the update interval when data is sent to the robot every delta_t seconds
+    time = millis();  
+    int interval = time - old_time;
+    if (interval > delta_t)
+    {        
+      println("update move angle and speed");
+     newMoveAngle = moveAngle;
+     newMoveSpeed = moveSpeed;
+     old_time = time;
+    }    
   }
   else if (!simMode)
   {
