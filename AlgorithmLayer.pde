@@ -23,8 +23,8 @@ int frameTime = 0;        //Measures the time between draw() frames to calculate
 //### Inital position of robot in the world map where 0,0 is the left bottom corner
 //  Ultimately the robot will not initially know where it is. These values can be used to plot the robot somewhere in the world map before 
 //    localisation moves the robot sprite to its localised location
-PVector robotPosOffset = new PVector (300, 441, -PI/2);
-PVector goalXY = new PVector(300, 200);       //Holds the goal's x and y coords
+//PVector robotPosOffset = new PVector (300, 441, -PI/2);
+//PVector goalXY = new PVector(300, 200);       //Holds the goal's x and y coords
 //PVector goalXY = new PVector(imgWidth * 0.5, imgHeight/2);       //Holds the goal's x and y coords
 
 //All distances are measured and listed in cm's unless specified otherwise
@@ -67,11 +67,12 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780;   //The actual dimensions in the real world represented by this map
+//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  //The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780;
-//String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
-//String mapName = "Bib Map2.png"; float worldWidth = 2718; float worldHeight = 2390;   //The actual dimensions in the real world represented by this map
+//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);
+//String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;//    //The actual dimensions in the real world represented by this map
+//String mapName = "Bib Map2.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(550,625, 0); PVector goalXY = new PVector(2659, 369);       //Holds the goal's x and y coords//The actual dimensions in the real world represented by this map
+String mapName = "BibMap1st.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(2659,369,PI); PVector goalXY = new PVector(1732, 1587);  //The actual dimensions in the real world represented by this map
 
 
  
