@@ -67,9 +67,9 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  PVector goalXY = new PVector(300, 600);//The actual dimensions in the real world represented by this map
+//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  PVector goalXY = new PVector(300, 600);//The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);
+String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2); PVector goalXY = new PVector(300, 600);
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;//    //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(550,625, 0); PVector goalXY = new PVector(2659, 369);       //Holds the goal's x and y coords//The actual dimensions in the real world represented by this map
 //String mapName = "BibMap1st.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(2659,369,PI); PVector goalXY = new PVector(1732, 1587);  //The actual dimensions in the real world represented by this map
@@ -494,18 +494,18 @@ void draw()
     //println("Node Link time: "+time);
     
     //### Calculates the attractive field for each tile
-    //oldMillis = millis();
-    //for (int k = 0; k < maxTilesX; k++)
-    //{
-    //  for (int l = 0; l < maxTilesY; l++)
-    //  {
-    //    if (tile[k][l].tileType == "UNASSIGNED")
-    //    {
-    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-    //    }
-    //  }
-    //}
+    oldMillis = millis();
+    for (int k = 0; k < maxTilesX; k++)
+    {
+      for (int l = 0; l < maxTilesY; l++)
+      {
+        if (tile[k][l].tileType == "UNASSIGNED")
+        {
+          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+        }
+      }
+    }
     //time = millis() - oldMillis;
     //println("Potential field: "+time);
     //mapChange = false;
