@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = true;
+boolean simMode = false;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -67,12 +67,12 @@ float worldMapScaleY = 0; //1137;
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
 //String mapName = "Floorplan.png";
-//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  //The actual dimensions in the real world represented by this map
+String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  PVector goalXY = new PVector(300, 600);//The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
 //String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;//    //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(550,625, 0); PVector goalXY = new PVector(2659, 369);       //Holds the goal's x and y coords//The actual dimensions in the real world represented by this map
-String mapName = "BibMap1st.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(2659,369,PI); PVector goalXY = new PVector(1732, 1587);  //The actual dimensions in the real world represented by this map
+//String mapName = "BibMap1st.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(2659,369,PI); PVector goalXY = new PVector(1732, 1587);  //The actual dimensions in the real world represented by this map
 
 
  
@@ -106,7 +106,7 @@ float diameter = 45.0;  //Measured in cm's
 
 
 
-final int maxParticles = 100;
+final int maxParticles = 000;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -900,11 +900,11 @@ void mousePressed()
   
   if (mousePressed && (mouseButton == RIGHT))
   { 
-    robotPosOffset.x = toWorldX(int(mouseX));
-    robotPosOffset.y = toWorldY(int(mouseY));
+    //robotPosOffset.x = toWorldX(int(mouseX));
+    //robotPosOffset.y = toWorldY(int(mouseY));
     
-    //myRobot.location.x = toWorldX(int(mouseX));
-    //myRobot.location.y = toWorldY(int(mouseY));
+    myRobot.location.x = toWorldX(int(mouseX));
+    myRobot.location.y = toWorldY(int(mouseY));
 
     //###Resets progress point when target is moved to the current mouse position    
     myRobot.progressPoint.x = toWorldX(int(mouseX));
@@ -1071,6 +1071,23 @@ void keyPressed()
   {
     agent.x = toWorldX(mouseX);
     agent.y = toWorldY(mouseY);
+  }
+  
+  //### Reset the map to it's original state.
+  //###  Only the MAP tiles are left intact while removing all the other tile types like kinect obstacles and user obstacles
+  if (key=='r')
+  {
+    myRobot.set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);
+    for(int y = 0; y < maxTilesY; y++)
+    {
+      for(int x = 0; x < maxTilesX; x++)    
+      {      
+        if (tile[x][y].tileType != "MAP")
+        {          
+            tile[x][y].tileType = "UNASSIGNED";                 
+        }
+      }
+    }
   }
 }
 
