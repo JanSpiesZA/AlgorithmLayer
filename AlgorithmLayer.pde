@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = false;
+boolean simMode = true;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -352,7 +352,7 @@ void setup()
   
   //-------------------------------------------------------------------------------
   //Create particles to localise robot
-  for (int i = 0; i < maxParticles; i++) //<>//
+  for (int i = 0; i < maxParticles; i++)
   {
     particles[i] = new Robot("PARTICLE");
     particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);  //## Move particle to robot position in order to test probability calculations
@@ -556,7 +556,7 @@ void draw()
      
   if (simMode)
   {
-    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle+"  -   SIMULATION MODE    -    Time Scale: "+timeScale; //<>//
+    frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle+"  -   SIMULATION MODE    -    Time Scale: "+timeScale;
     //## Shows the framerate in milli seconds on the top of the screen
     oldMillis = newMillis;
     newMillis = millis();
@@ -572,6 +572,9 @@ void draw()
     myRobot.sense();   
     int endTime = millis();
     //println("Sense Time: " + (endTime - startTime));
+    
+    isInFOWUS();
+    
     accuDist += moveSpeed*float(frameTime)/1000*timeScale;
     if (moveSpeed !=0 ) accuTime+=float(frameTime)/1000.0*timeScale;
     println("distance to target: "+distanceToTarget+"\tmoveSpeed : " + moveSpeed + "\taccuDist : "+accuDist + "\taccuTime : "+accuTime);    
@@ -592,6 +595,9 @@ void draw()
   {
     frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle;
     isInFOW();
+    
+    isInFOWUS();
+    
     drawPixels();
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
     //inData = "d0:60,1:60,2:60,3:60,4:60,5:60,6:60";
@@ -720,6 +726,37 @@ void isInFOW()
       }
     }
   }
+}
+
+//###Tests to see if any left-over obstacles are within the field of view of ultrasonic sensors
+void isInFOWUS()
+{  
+  float _refXPos = myRobot.location.x;
+  float _refYPos = myRobot.location.y;
+  
+  for (int k = 0; k < numSensors2; k++)
+    {      
+      float heading = myRobot.heading + myRobot.sensors.get(k).sensorHAngle;
+      float tmpSensVal = minDetectDistance;      
+      
+      if (tmpSensVal < maxDetectDistance)    //Skip to next sensor if sensors range is maxed out
+      {
+        while (tmpSensVal < myRobot.sensors.get(k).sensorObstacleDist)
+        {
+          float dX = cos(heading) * tmpSensVal;
+          float dY = sin(heading) * tmpSensVal;
+          
+          //ellipse(toScreenX(_refXPos + dX), toScreenY(_refYPos + dY), 5, 5);
+          
+          //Tests for USER and MAP tiletypes in order to calculate distance for US sensors to obstacles
+          if ((tile[int((_refXPos + dX)/tileSize)][int((_refYPos + dY)/tileSize)].tileType != "MAP") && (tile[int((_refXPos + dX)/tileSize)][int((_refYPos + dY)/tileSize)].tileType != "UNASSIGNED"))                  
+          {
+           tile[int((_refXPos + dX)/tileSize)][int((_refYPos + dY)/tileSize)].tileType = "UNASSIGNED";
+          }
+          tmpSensVal += 1;
+        }             //<>//
+      }
+    }
 }
 
 //###############################################################################################
