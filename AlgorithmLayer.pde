@@ -138,6 +138,11 @@ float[] sensorObstacleDist = new float[numSensors];
 
 PVector vectorGoToGoal = new PVector();          //Vector pointing to the goal
 PVector vectorAOGTG = new PVector();
+PVector vectorNextWaypoint = new PVector();      //vector pointing towards the next waypoint
+PVector vectorSensors = new PVector();
+
+
+
 PVector vectorAvoidObstacles = new PVector();
 PVector coordsAvoidObstacles = new PVector();    //Coords on the world frame, holding the point of the avoid obstacle vector
 PVector vectorBlendedAOGTG = new PVector();      //Holds the vector which is blended between AvoidObstacles an GoToGoal
@@ -533,6 +538,16 @@ void draw()
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
   vectorAOFWD.y = (calcAttractField(myRobot.location.x, myRobot.location.y).y + calcRepulsiveField(myRobot.location.x, myRobot.location.y).y);
   
+  vectorGoToGoal.x = goalXY.x - myRobot.location.x;
+  vectorGoToGoal.y = goalXY.y - myRobot.location.y;
+  vectorGoToGoal.normalize();
+  
+  vectorNextWaypoint.x = nextWaypoint.x - myRobot.location.x; 
+  vectorNextWaypoint.y = nextWaypoint.y - myRobot.location.y;
+  vectorNextWaypoint.normalize();
+  
+  //vectorSensors.x += myRobot.sensor[0].get
+  
   //###Calcualtes the angle in which the robot needs to travel  
   //    ??1) Converts it from an atan2 angle into a real world angle
   //    2) Calculates the difference between the robot's heading and the goal angle
@@ -881,16 +896,16 @@ void drawTarget()
 void dispVectors()
 {  
   //Draws a vector pointing away from all the obstacles
-  //strokeWeight(4);
-  //stroke(255,0,0);
-  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-  //     toScreenX(int(myRobot.location.x + vectorAvoidObstacles.x)), toScreenY(int(myRobot.location.y + vectorAvoidObstacles.y)));
+  strokeWeight(4);
+  stroke(255,0,0);
+  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+       toScreenX(int(myRobot.location.x + vectorNextWaypoint.x*20)), toScreenY(int(myRobot.location.y + vectorNextWaypoint.y*20)));
   
   ////###Draws a vector straight towards the goal
-  //strokeWeight(15);
-  //stroke(255,255, 0);  
-  //line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
-  //     toScreenX(int(myRobot.location.x+vectorGoToGoal.x*100)), toScreenY(int(myRobot.location.y+vectorGoToGoal.y*100)));     
+  strokeWeight(5);
+  stroke(255,255, 0);  
+  line(toScreenX(int(myRobot.location.x)), toScreenY(int(myRobot.location.y)), 
+       toScreenX(int(myRobot.location.x + vectorGoToGoal.x*20)), toScreenY(int(myRobot.location.y + vectorGoToGoal.y*20)));     
   
   
   //###Draws a vector which is a blend between the goal and avoid obstacles
