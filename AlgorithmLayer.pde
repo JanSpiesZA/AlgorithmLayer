@@ -543,17 +543,16 @@ void draw()
   vectorGoToGoal.normalize();
   
   vectorNextWaypoint.x = nextWaypoint.x - myRobot.location.x; 
-  vectorNextWaypoint.y = nextWaypoint.y - myRobot.location.y;
-  vectorNextWaypoint.normalize();
-  
-  //vectorSensors.x += myRobot.sensor[0].get
+  vectorNextWaypoint.y = nextWaypoint.y - myRobot.location.y;  
+  vectorNextWaypoint.normalize();   //<>//
   
   //###Calcualtes the angle in which the robot needs to travel  
   //    ??1) Converts it from an atan2 angle into a real world angle
   //    2) Calculates the difference between the robot's heading and the goal angle
   //    3) Converts this difference into the robot's local frame in order to determine left and right turns
   // Based on Games Programming: Methods and How to's - Dr James Jordaan Revision 4.1 p196
-  angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;        
+  
+  angleToGoal = atan2(vectorAOFWD.y,vectorAOFWD.x) - myRobot.heading;  
   if (angleToGoal < (-PI)) angleToGoal += 2*PI;
   if (angleToGoal > (PI)) angleToGoal -= 2*PI;
   
@@ -566,8 +565,11 @@ void draw()
     moveAngle = constrain ((turnGain * angleToGoal), -myRobot.maxTurnRate, myRobot.maxTurnRate);
   }
   //##---KYK na hierdie moveSpeed, dit is 'n ratio van afstand na die eerste waypoint en die afstand na die finale goal
-  distanceToTarget = vectorAOFWD.mag();
-  moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));  
+  //distanceToTarget = vectorAOFWD.mag(); 
+  float tmpAngle = min(2*abs(angleToGoal), PI); //verskil in hoek kan nooit groter as PI wees nie, maar kan vinniger verander
+  //moveSpeed = min (myRobot.maxSpeed, (moveGain * (distanceToTarget)));
+  
+  moveSpeed = myRobot.maxSpeed - map(tmpAngle, 0, PI, 0, myRobot.maxSpeed);
      
   if (simMode)
   {
@@ -576,7 +578,7 @@ void draw()
     oldMillis = newMillis;
     newMillis = millis();
     textSize(16);  
-    textAlign(LEFT, TOP);
+    textAlign(LEFT, TOP); //<>//
     fill(0);
     frameTime = newMillis - oldMillis;
     text("frame rate (ms): "+frameTime,5,5);
