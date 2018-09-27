@@ -65,7 +65,7 @@ class Tile
       
       case "KINECT":
       {
-        gravity = 255;
+        //gravity = 255;
         //calcField();        
         gravityCol = color(0,191,255);    //deepskyblue for kinect obstacles
         break;
