@@ -494,18 +494,18 @@ void draw()
     //println("Node Link time: "+time);
     
     //### Calculates the attractive field for each tile
-    oldMillis = millis();
-    for (int k = 0; k < maxTilesX; k++)
-    {
-      for (int l = 0; l < maxTilesY; l++)
-      {
-        if (tile[k][l].tileType == "UNASSIGNED")
-        {
-          tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
-          tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
-        }
-      }
-    }
+    //oldMillis = millis();
+    //for (int k = 0; k < maxTilesX; k++)
+    //{
+    //  for (int l = 0; l < maxTilesY; l++)
+    //  {
+    //    if (tile[k][l].tileType == "UNASSIGNED")
+    //    {
+    //      tile[k][l].field.x = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x + calcRepulsiveField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).x;
+    //      tile[k][l].field.y = calcAttractField(tile[k][l].tilePos.x, tile[k][l].tilePos.y).y + calcRepulsiveField(tile[k][l].tilePos.y, tile[k][l].tilePos.y).y;
+    //    }
+    //  }
+    //}
     //time = millis() - oldMillis;
     //println("Potential field: "+time);
     //mapChange = false;
@@ -532,7 +532,12 @@ void draw()
   fill(0);  
   textSize(10);
   textAlign(CENTER,BOTTOM);  
-  text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
+  //text(toWorldX(mouseX)+":"+toWorldY(mouseY), mouseX, mouseY);
+  
+  //Displays gravity value of tile @ mouseX,Y 
+  int tileX = int(toWorldX(mouseX)/tileSize);
+  int tileY = int(toWorldY(mouseY)/tileSize);
+  text(tileX+":"+tileY+":"+tile[tileX][tileY].gravity,mouseX,mouseY);
   
   //## Calculates the movement vector based on the robot position and repulsive and attractive forces
   vectorAOFWD.x = (calcAttractField(myRobot.location.x, myRobot.location.y).x + calcRepulsiveField(myRobot.location.x, myRobot.location.y).x);
@@ -613,7 +618,7 @@ void draw()
     frameText = int(frameRate)+" fps  -  "+allNodes.size()+" Nodes   - v="+moveSpeed+"  -  w:"+moveAngle;
     isInFOW();
     
-    isInFOWUS();
+    //isInFOWUS();
     
     drawPixels();
     //###Get serial data from robot driver layer: x,y,heading and ultrasonic sensor values
@@ -1143,6 +1148,12 @@ void keyPressed()
       }
     }
   }
+  
+  if (key == 'j')
+  {
+    myRobot.heading += 1;
+  }
+  
 }
 
 
