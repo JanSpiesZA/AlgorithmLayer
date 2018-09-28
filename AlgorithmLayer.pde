@@ -66,10 +66,10 @@ float worldMapScaleY = 0; //1137;
 //float worldHeight = worldMapScaleY;    //New variable for world height that should replace woldMapScaleY
 
 //Select the map to be used and set the imgHeight and imgWidth values to the x and y size of the graphic
-//String mapName = "Floorplan.png";
-//String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  PVector goalXY = new PVector(300, 600);//The actual dimensions in the real world represented by this map
+//String mapName = "Floorplan.png"; float worldWidth = 959; float worldHeight = 287; PVector robotPosOffset = new PVector(300,50, PI/2); PVector goalXY = new PVector(300, 600);
+String mapName = "blank.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2);  PVector goalXY = new PVector(300, 600);//The actual dimensions in the real world represented by this map
 //String mapName = "Huisplan.png";
-String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2); PVector goalXY = new PVector(300, 600);
+//String mapName = "kamer3.png"; float worldWidth = 780; float worldHeight = 780; PVector robotPosOffset = new PVector(300,50, PI/2); PVector goalXY = new PVector(300, 600);
 //String mapName = "BibMapPNG.png"; float worldWidth = 2390; float worldHeight = 2390;//    //The actual dimensions in the real world represented by this map
 //String mapName = "Bib Map2.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(550,625, 0); PVector goalXY = new PVector(2659, 369);       //Holds the goal's x and y coords//The actual dimensions in the real world represented by this map
 //String mapName = "BibMap1st.png"; float worldWidth = 2881; float worldHeight = 2881; PVector robotPosOffset = new PVector(2659,369,PI); PVector goalXY = new PVector(1732, 1587);  //The actual dimensions in the real world represented by this map
@@ -1129,28 +1129,35 @@ void keyPressed()
   }
 
   //Use this key to enable or disable obstacle
-  if (key == 'o')
+  if ((key == 'o') || (key == 'm'))
   {
     int worldMouseX = int(toWorldX(mouseX)/tileSize);
     int worldMouseY = int(toWorldY(mouseY)/tileSize);
     switch(tile[worldMouseX][worldMouseY].tileType)
     {
       case "UNASSIGNED":
-      {            
-        tile[worldMouseX][worldMouseY].tileType = "USER"; //Set tileType to USER obstacle
-        //tile[int(mouseX/tileSize)][int(mouseY/tileSize)].tileType = "USER"; //Set tileType to USER obstacle        
+      {     
+        if (key == 'o')
+        {
+          tile[worldMouseX][worldMouseY].tileType = "USER"; //Set tileType to USER obstacle
+        }
+        else if (key == 'm')
+        {
+          tile[worldMouseX][worldMouseY].tileType = "MAP"; //Set tileType to USER obstacle
+        }
+                
         tile[worldMouseX][worldMouseY].update();
         break;
       }
       
-      case "USER":
+      case "USER": case "MAP":
       {        
         tile[worldMouseX][worldMouseY].tileType = "UNASSIGNED"; //Set tileType to UNASSIGNED obstacle        
         tile[worldMouseX][worldMouseY].update();
         break;
       }
     }
-  }
+  }  
   
   if (key == ' ')
   {
