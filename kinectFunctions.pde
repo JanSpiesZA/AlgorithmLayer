@@ -26,6 +26,15 @@ void drawPixels()
 {
  // Get the raw depth as array of integers
  int[] depth = kinect.getRawDepth();
+ 
+ for (int i=0; i < maxTilesX; i++)
+ {
+   for (int j=0; j < maxTilesY; j++)
+   {
+     //if (tile[i][j].tileType == "KINECT") 
+       tile[i][j].gravity = 0;
+   }
+ }
   
  for (int x = 0; x < kinect.width; x += skip) 
  {
@@ -48,9 +57,17 @@ void drawPixels()
         ellipse(toScreenX(int(returnVal.x)), toScreenY(int(returnVal.y)), 5 * scaleFactor, 5 * scaleFactor);
         
         if (v.z <= maxKinectPersistantView) updateGravity(returnVal.x, returnVal.y);
-     }
+     }     
    }
- }  
+ }
+ for (int i=0; i < maxTilesX; i++)
+ {
+   for (int j=0; j < maxTilesY; j++)
+   {
+     if ((tile[i][j].tileType == "UNASSIGNED") && (tile[i][j].gravity > 15)) tile[i][j].tileType = "KINECT"; 
+     tile[i][j].update();  
+   }
+ } 
 }
 
 
@@ -66,7 +83,7 @@ void updateGravity(float _x, float _y)
   if (y < 0) y = 0;
   if (y >= maxTilesY) y = maxTilesY-1;
   
-  if (tile[x][y].tileType == "UNASSIGNED") tile[x][y].tileType = "KINECT";      //Change tileType to KINECT only when tile is not asigned
+  //if (tile[x][y].tileType == "UNASSIGNED")  tile[x][y].tileType = "KINECT";      //Change tileType to KINECT only when tile is not asigned
   tile[x][y].gravity++;
-  tile[x][y].update();
+  //tile[x][y].update();
 }

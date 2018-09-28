@@ -1,5 +1,5 @@
 
-final int nodeDist = 10;
+final int nodeDist = 17;
 
 //Implements the concept of Visibility Graphs form Embedded Robotics, Braunl, p254
 void VGraph()
