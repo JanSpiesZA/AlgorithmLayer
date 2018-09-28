@@ -106,7 +106,7 @@ float diameter = 45.0;  //Measured in cm's
 
 
 
-final int maxParticles = 000;
+final int maxParticles = 100;
 Robot[] particles = new Robot[maxParticles];
 final float noiseForward = 1.0;            //global Noisevalues used to set the noise values in the praticles
 final float noiseTurn = 0.1;
@@ -196,6 +196,8 @@ boolean allowV = false;      //Allows the v movement of the robot
 //    just used to test attractive and repulsive forces and does not at this stage make use of path planning
 PVector agent = new PVector(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z); //10.0, 10.0, 0.0);
 
+PVector avgRobotPos = new PVector(0,0,0);
+
 int ts = 12;  //textSize value used to display information on the graphical screen
 
 String frameText;    //## String used to change what is displayed in the simulation frame
@@ -269,9 +271,9 @@ void setup()
   //## Calculates the smallest binary value that can be used to calculate the tilesize with
   int xx = 0;
   while (int(pow(2,xx)) < int(maxTilesX))
-  {  //<>//
+  { //<>//
     xx++;    
-  }   //<>//
+  } //<>//
   
   int yy = 0;
   while (int(pow(2,yy)) < int(maxTilesY))
@@ -357,6 +359,7 @@ void setup()
   
   //-------------------------------------------------------------------------------
   //Create particles to localise robot
+  //Determine average particel location
   for (int i = 0; i < maxParticles; i++)
   {
     particles[i] = new Robot("PARTICLE");
@@ -368,7 +371,7 @@ void setup()
     for (int k = 0; k < numSensors2; k++)
     {
       particles[i].addSensor(0, 0, -PI/2 + PI/(numSensors2-1)*k);
-    }
+    }    
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -549,7 +552,7 @@ void draw()
   
   vectorNextWaypoint.x = nextWaypoint.x - myRobot.location.x; 
   vectorNextWaypoint.y = nextWaypoint.y - myRobot.location.y;  
-  vectorNextWaypoint.normalize();   //<>//
+  vectorNextWaypoint.normalize(); 
   
   //###Calcualtes the angle in which the robot needs to travel  
   //    ??1) Converts it from an atan2 angle into a real world angle
@@ -676,11 +679,34 @@ void draw()
   //##Calculates the probability value between the robot's sensors and each particle in order to determine where the robot is
   updateParticleProb();
   
+  //##Resample particles to get rid of dead particles
+  resample(); 
+
+  
+  //##Calculate the position of the average particles and of the particle with the biggest probability
+  float largestParticleProb = 0.0;
+  int largestParticleProbIndex = 0;
+  for (int i = 0; i < maxParticles; i ++)
+  { //<>//
+    if (particles[i].prob > largestParticleProb)
+    {
+      largestParticleProb = particles[i].prob;
+      largestParticleProbIndex = i;
+    }
+    avgRobotPos.x = particles[i].location.x;
+    avgRobotPos.y = particles[i].location.y;
+  }
+  
+  stroke(255,255, 0);
+  fill(255,255, 0);
+  ellipse (toScreenX(avgRobotPos.x), toScreenY(avgRobotPos.y), 20,20);
+  
+  stroke(0,255, 255);
+  fill(0,255, 255);
+  ellipse (toScreenX(particles[largestParticleProbIndex].location.x), toScreenY(particles[largestParticleProbIndex].location.y), 20,20);
+  
   //##Display particles after new probability updates have been done
   displayParticles();
-  
-  //##Resample particles to get rid of dead particles
-  resample();    
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -714,11 +740,11 @@ void drawTiles()
 //Checks to see if tile center point is inside kienct Field of View but closer than the maximum Peristant view value.
 //(http://stackoverflow.com/questions/13300904/determine-whether-point-lies-inside-triangle)
 //Kinect data outside of this area will not influence the map.
-//Kinect data inside this area will be overwritten if in the field of view. //<>//
+//Kinect data inside this area will be overwritten if in the field of view. //<>// //<>//
 //The purpose is to collect obstacle data in order to 'remeber where obstacles are when the kinect moves and these obstacle go into the deadzone
 
 void isInFOW()
-{ //<>//
+{ //<>// //<>//
   float alpha = 0.0;
   float beta = 0.0;
   float gamma =0.0;
@@ -776,7 +802,7 @@ void isInFOWUS()
            tile[int((_refXPos + dX)/tileSize)][int((_refYPos + dY)/tileSize)].tileType = "UNASSIGNED";
           }
           tmpSensVal += 1;
-        }             //<>//
+        }             //<>// //<>//
       }
     }
 }
