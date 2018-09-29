@@ -11,7 +11,7 @@
 //!!  : Fixes that need to be made to commented pieces of code
 
 //##When true the robot does not access any serial ports and uses location and sensor data from the simulation
-boolean simMode = true;
+boolean simMode = false;
 boolean showVal = false;
 boolean step = true;
 boolean nextStep = false;
@@ -397,7 +397,7 @@ void setup()
   {
     printArray(Serial.list());
     usPort = new Serial(this, Serial.list()[1], 9600);  
-    motorPort = new Serial(this, Serial.list()[0], 115200);
+    motorPort = new Serial(this, Serial.list()[2], 115200);
     delay(5000);      //Delay to make sure the Arduino initilaises before data is sent
     motorPort.write("<v00\r");    //Sends a velcoity of 0 to the chassis
     delay(500);
@@ -1179,6 +1179,13 @@ void keyPressed()
             tile[x][y].tileType = "UNASSIGNED";                 
         }
       }
+    }
+    
+    //###Reset particle location to be back on robot position
+    for (int i = 0; i < maxParticles; i++)
+    {
+      particles[i] = new Robot("PARTICLE");
+      particles[i].set(robotPosOffset.x, robotPosOffset.y, robotPosOffset.z);  //## Move particle to robot position in order to test probability calculations
     }
   }
   
